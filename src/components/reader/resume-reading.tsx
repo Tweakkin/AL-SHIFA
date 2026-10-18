@@ -17,6 +17,6 @@ export function ResumeReading({ bookSlug, chapters }: { bookSlug: string; chapte
     return () => window.removeEventListener("pageshow", refresh);
   }, [bookSlug, chapters]);
 
-  return progress ? <Link className="button-secondary resume-reading" title={`${chapters.find((chapter) => chapter.id === progress.chapterId)?.title} — ${arabicNumber(Math.round(progress.ratio * 100))}٪`} href={`/read/${bookSlug}/${progress.chapterSlug}?resume=1`}><RotateCcw size={16} aria-hidden="true" /> استئناف القراءة</Link>
-    : <button className="button-secondary resume-reading" type="button" disabled aria-label="استئناف القراءة — لا يوجد موضع محفوظ بعد"><RotateCcw size={16} aria-hidden="true" /> استئناف القراءة</button>;
+  return progress ? <Link className="button-secondary resume-reading" aria-describedby="reading-availability" title={`${chapters.find((chapter) => chapter.id === progress.chapterId)?.title} — ${arabicNumber(Math.round(progress.ratio * 100))}٪`} href={`/read/${bookSlug}/${progress.chapterSlug}?resume=1`}><RotateCcw size={16} aria-hidden="true" /> استئناف القراءة</Link>
+    : null;
 }

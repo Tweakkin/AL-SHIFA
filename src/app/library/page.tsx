@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, RotateCcw, Search } from "lucide-react";
+import { ArrowLeft, BookOpen, ChevronDown, RotateCcw, Search } from "lucide-react";
 import { BookCard } from "@/components/book-card";
 import { books } from "@/lib/books";
 import { filterBooks } from "@/lib/catalog";
@@ -30,16 +30,16 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
         <label htmlFor="catalog-query">عنوان الكتاب أو اسم المؤلف</label>
         <div className="catalog-input"><Search size={19} aria-hidden="true" /><input id="catalog-query" type="search" name="q" defaultValue={query} placeholder="ابحث عن كتاب أو مؤلّف..." maxLength={200} /></div>
       </div>
-      <div className="catalog-select-field"><label htmlFor="catalog-category">الموضوع</label><select id="catalog-category" name="category" defaultValue={category}>
+      <div className="catalog-select-field"><label htmlFor="catalog-category">الموضوع</label><div className="catalog-select-control"><select id="catalog-category" name="category" defaultValue={category}>
         <option value="">جميع الموضوعات</option>
         {category && !categories.includes(category) && <option value={category}>موضوع غير موجود</option>}
         {categories.map((item) => <option key={item} value={item}>{item}</option>)}
-      </select></div>
-      <div className="catalog-select-field"><label htmlFor="catalog-author">المؤلف</label><select id="catalog-author" name="author" defaultValue={author}>
+      </select><ChevronDown size={16} aria-hidden="true" /></div></div>
+      <div className="catalog-select-field"><label htmlFor="catalog-author">المؤلف</label><div className="catalog-select-control"><select id="catalog-author" name="author" defaultValue={author}>
         <option value="">جميع المؤلفين</option>
         {author && !authors.includes(author) && <option value={author}>مؤلف غير موجود</option>}
         {authors.map((item) => <option key={item} value={item}>{item}</option>)}
-      </select></div>
+      </select><ChevronDown size={16} aria-hidden="true" /></div></div>
       <button className="button-primary" type="submit">بحث وتصفية <ArrowLeft size={17} aria-hidden="true" /></button>
     </form>
     <div className="catalog-results-heading">
