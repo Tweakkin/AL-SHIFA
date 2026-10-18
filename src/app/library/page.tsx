@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, ChevronDown, RotateCcw, Search } from "lucide-react";
 import { BookCard } from "@/components/book-card";
+import { HeroZellige } from "@/components/hero-zellige";
 import { books } from "@/lib/books";
-import { filterBooks } from "@/lib/catalog";
+import { catalogResetHref, filterBooks } from "@/lib/catalog";
 
 export const metadata: Metadata = { title: "المكتبة", description: "تصفّح كتب مكتبة الشفا، وابحث بعنوان الكتاب أو اسم المؤلف، وصفِّ النتائج حسب الموضوع والمؤلف." };
 
@@ -18,8 +19,11 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
   const categories = [...new Set(books.map((book) => book.category))];
   const authors = [...new Set(books.map((book) => book.author))];
   const results = filterBooks(books, { query, category, author });
+  const resetHref = catalogResetHref({ query, category, author });
   // Unknown URL filters stay visible and resettable instead of silently showing all books.
-  return <main id="main" className="container catalog-page">
+  return <main id="main" className="catalog-surface">
+    <HeroZellige />
+    <div className="container catalog-page">
     <header className="catalog-heading">
       <span className="eyebrow section-eyebrow"><span /> من رفوف الشفا</span>
       <h1>المكتبة الرقمية</h1>
@@ -44,7 +48,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
     </form>
     <div className="catalog-results-heading">
       <p role="status">عرض <strong>{results.length.toLocaleString("ar")}</strong> من <strong>{books.length.toLocaleString("ar")}</strong> كتب{query && <> — نتائج البحث عن «<bdi>{query}</bdi>»</>}</p>
-      <Link className="text-link catalog-reset" href="/library"><RotateCcw size={15} aria-hidden="true" /> إعادة ضبط البحث والتصفية</Link>
+      {resetHref && <Link className="text-link catalog-reset" href={resetHref}><RotateCcw size={15} aria-hidden="true" /> مسح التصفية</Link>}
     </div>
     {results.length > 0 ? <div className="book-grid">{results.map((book) => <BookCard key={book.slug} book={book} index={books.indexOf(book)} showCategory />)}</div> : <section className="catalog-empty" aria-labelledby="empty-title">
       <Search size={27} aria-hidden="true" /><h2 id="empty-title">لا توجد كتب مطابقة</h2>
@@ -52,5 +56,6 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
       <Link href="/library" className="button-primary">عرض جميع الكتب <RotateCcw size={16} aria-hidden="true" /></Link>
     </section>}
     <div className="library-note"><BookOpen size={17} aria-hidden="true" /><p>يمكنك البحث في عناوين الكتب وأسماء المؤلفين. يعرض القارئ حاليًا نصوصًا تجريبية؛ المتون الأصلية قيد الإعداد.</p></div>
+    </div>
   </main>;
 }

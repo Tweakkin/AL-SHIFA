@@ -17,7 +17,7 @@ export function Header() {
     <header className="site-header">
       <div className="container header-inner">
         <Link href="/" className="brand" aria-label="الشفا — الرئيسية" onClick={() => setOpen(false)}>
-          <span className="brand-mark">الشفا</span>
+          <span className="brand-mark font-maghribi">الشفا</span>
           <span className="brand-caption">المكتبة الرقمية<br />للسيرة النبوية</span>
         </Link>
         <nav className="desktop-nav" aria-label="التنقل الرئيسي">

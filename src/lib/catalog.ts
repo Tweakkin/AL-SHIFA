@@ -13,6 +13,11 @@ export function normalizeArabic(value: string): string {
 
 export type CatalogFilters = { query?: string; category?: string; author?: string };
 
+/** A clean catalog URL clears all submitted fields, including unknown filters. */
+export function catalogResetHref({ query = "", category = "", author = "" }: CatalogFilters): "/library" | null {
+  return [query, category, author].some((value) => value.trim()) ? "/library" : null;
+}
+
 export function filterBooks(source: readonly Book[], { query = "", category = "", author = "" }: CatalogFilters): Book[] {
   const terms = normalizeArabic(query).split(" ").filter(Boolean);
   return source.filter((book) => {

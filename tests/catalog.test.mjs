@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { books } from "../src/lib/books.ts";
-import { normalizeArabic, filterBooks } from "../src/lib/catalog.ts";
+import { normalizeArabic, filterBooks, catalogResetHref } from "../src/lib/catalog.ts";
 
 test("Arabic normalization removes marks, Alef variants, tatweel and surplus whitespace", () => {
   assert.equal(normalizeArabic("  أ إ آ ٱ  الشِّفَــا  \n عِيَاض  "), "ا ا ا ا الشفا عياض");
@@ -37,5 +37,24 @@ test("empty search and reset return all books; unmatched and unknown filters ret
   assert.deepEqual(filterBooks(books, { query: "  ـَ  " }), books);
   for (const filters of [{ query: "عنوان غير موجود" }, { category: "unknown" }, { author: "unknown" }]) {
     assert.deepEqual(filterBooks(books, filters), []);
+  }
+});
+
+test("catalog reset is hidden at defaults and clears every active filter through its URL", () => {
+  for (const filters of [{}, { query: "", category: "", author: "" }, { query: "  " }]) {
+    assert.equal(catalogResetHref(filters), null);
+  }
+  for (const filters of [
+    { query: "الشِّفَا" }, { category: books[0].category }, { author: books[0].author },
+    { query: "الشفا", category: books[0].category, author: books[0].author },
+    { category: "unknown" }, { author: "unknown" }, { query: "عنوان غير موجود" },
+  ]) {
+    const href = catalogResetHref(filters);
+    assert.equal(href, "/library");
+    const url = new URL(href, "http://localhost");
+    assert.equal(url.search, "");
+    const cleared = { query: url.searchParams.get("q") ?? "", category: url.searchParams.get("category") ?? "", author: url.searchParams.get("author") ?? "" };
+    assert.deepEqual(filterBooks(books, cleared), books);
+    assert.equal(catalogResetHref(cleared), null);
   }
 });
