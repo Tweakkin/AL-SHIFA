@@ -4,6 +4,7 @@ import { BookCard } from "@/components/book-card";
 import { BookCover } from "@/components/book-cover";
 import { Ornament } from "@/components/ornament";
 import { HeroTitleMark, HeroZellige } from "@/components/hero-zellige";
+import { ZelligeBg } from "@/components/zellige-bg";
 import { books } from "@/lib/books";
 
 export default function HomePage() {
@@ -28,6 +29,7 @@ export default function HomePage() {
 
     <section className="featured-section container" aria-labelledby="featured-title">
       <div className="featured-panel">
+        <ZelligeBg id="featured-zellige" />
         <div className="featured-copy">
           <span className="eyebrow section-eyebrow"><span /> في رحاب كتاب</span>
           <h2 id="featured-title">الشفا <span>بتعريف حقوق المصطفى</span></h2>
