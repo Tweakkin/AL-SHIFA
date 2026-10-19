@@ -1,24 +1,28 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { runInNewContext } from "node:vm";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { IntroOutlinePassage, introOutlineEntries } from "../src/components/reader/intro-outline.ts";
 import { bookContents } from "../src/content/books.ts";
 import { getReadingSections } from "../src/content/reader-demonstration.ts";
-import { parsePreferences, parseProgress, progressKey, shouldRestoreProgress, readingRatio, readerPreferencesScript, globalMode, themeFromGlobalMode, siteThemeTokens } from "../src/lib/reader-state.ts";
+import { readerHeading } from "../src/lib/reader-headings.ts";
+import { parsePreferences, parseProgress, progressKey, shouldRestoreProgress, readingRatio, readerPreferencesScript, globalMode, themeFromGlobalMode, siteThemeTokens, isRepeatedChapterHeading } from "../src/lib/reader-state.ts";
 
 test("preferences round-trip all themes and clamp invalid sizes without trusting corrupt data", () => {
   for (const theme of ["white", "ivory", "dark"]) {
-    assert.deepEqual(parsePreferences(JSON.stringify({ theme, fontSize: 26 })), { theme, fontSize: 26 });
+    assert.deepEqual(parsePreferences(JSON.stringify({ theme, fontSize: 26 })), { theme, fontSize: 26, fontFamily: "plex" });
   }
   assert.equal(parsePreferences('{"fontSize":2}').fontSize, 18);
   assert.equal(parsePreferences('{"fontSize":999}').fontSize, 34);
   for (const raw of [null, "null", "[]", "bad JSON", '"text"', '{"fontSize":"28","theme":"unknown"}']) {
-    assert.deepEqual(parsePreferences(raw), { theme: "ivory", fontSize: null });
+    assert.deepEqual(parsePreferences(raw), { theme: "ivory", fontSize: null, fontFamily: "plex" });
   }
 });
 
 test("the supported pre-paint script applies safe CSS without changing React-owned attributes", () => {
   for (const pathname of ['/', '/library', '/books/al-shifa', '/read/al-shifa/demo-01']) {
-  for (const raw of ['{"theme":"dark","fontSize":28}', '{"theme":"white","fontSize":999}', '{"theme":"ivory"}', '{"theme":"invalid","fontSize":5}', '{}', 'bad JSON']) {
+  for (const raw of ['{"theme":"dark","fontSize":28,"fontFamily":"amiri"}', '{"theme":"white","fontSize":999}', '{"theme":"ivory"}', '{"theme":"invalid","fontSize":5}', '{}', 'bad JSON']) {
     const root = { dataset: {} };
     const document = { documentElement: root, adoptedStyleSheets: [] };
     const window = {};
@@ -36,6 +40,7 @@ test("the supported pre-paint script applies safe CSS without changing React-own
     assert.ok(css.includes(`--page:${siteThemeTokens[mode].page}`));
     assert.ok(css.includes(`--button-bg:${siteThemeTokens[mode]['button-bg']}`));
     assert.ok(css.includes(`color-scheme:${mode}`));
+    assert.ok(css.includes(expected.fontFamily === 'amiri' ? '.reader-document{font-family:var(--font-amiri), serif}' : '.reader-document{font-family:var(--font-plex), sans-serif}'));
     assert.equal(css.includes('--reader-font-size:'), expected.fontSize !== null);
     if (expected.fontSize !== null) assert.ok(css.includes(`--reader-font-size:${expected.fontSize}px`));
   }
@@ -44,7 +49,102 @@ test("the supported pre-paint script applies safe CSS without changing React-own
 
 });
 
+test("font choices persist and legacy preferences keep their size and theme", () => {
+  for (const fontFamily of ['plex', 'amiri']) {
+    const preferences = { theme: 'dark', fontSize: 28, fontFamily };
+    assert.deepEqual(parsePreferences(JSON.stringify(preferences)), preferences);
+    assert.equal(parsePreferences(JSON.stringify({ ...preferences, theme: 'white' })).fontFamily, fontFamily);
+  }
+  assert.deepEqual(parsePreferences('{"theme":"dark","fontSize":26}'), { theme: 'dark', fontSize: 26, fontFamily: 'plex' });
+  assert.equal(parsePreferences('{"fontFamily":"invalid"}').fontFamily, 'plex');
+});
+
+test("only matching opening metadata headings are suppressed", () => {
+  assert.equal(isRepeatedChapterHeading('مقدمة المؤلف', 'مقدمة المؤلف', 0), true);
+  assert.equal(isRepeatedChapterHeading('  مقدمة   المؤلف ', 'مقدمة المؤلف', 0), true);
+  assert.equal(isRepeatedChapterHeading('الباب الأول', 'القسم الأول: الباب الأول', 0), true);
+  assert.equal(isRepeatedChapterHeading('الفصل الأول', 'الباب الأول', 0), false);
+  assert.equal(isRepeatedChapterHeading('مقدمة المؤلف', 'مقدمة المؤلف', 1), false);
+});
+
 const chapters = bookContents[0].chapters;
+
+test("reviewed introductory outline renders separate labels and descriptions without changing original text", () => {
+  const chapter = chapters.find(chapter => chapter.slug === 'muqaddima');
+  const before = JSON.stringify(chapter);
+  const passages = getReadingSections(chapter).flatMap(section => section.passages);
+  let formatted = 0;
+  const divisions = [];
+  for (const passage of passages) {
+    const entries = introOutlineEntries(chapter.id, passage);
+    const html = renderToStaticMarkup(createElement(IntroOutlinePassage, { chapterId: chapter.id, passage }));
+    assert.equal((html.match(/data-reader-passage=/g) || []).length, 1);
+    assert.ok(html.includes(`id="${passage.id}"`));
+    if (!entries) continue;
+    formatted++;
+    assert.equal(entries.map(entry => entry.sourceLabel + entry.description).join(''), passage.text);
+    assert.ok(html.includes('aria-label="من خطة المؤلف للكتاب في المقدمة"'));
+    for (const entry of entries) {
+      assert.ok(html.includes(`<h3 class="reader-outline-label">${entry.label}</h3>`));
+      assert.ok(html.includes(`<p class="reader-outline-description" dir="auto">${entry.description}</p>`));
+      assert.doesNotMatch(entry.label, /[()]/);
+      if (entry.level === 'division') divisions.push(entry.label);
+    }
+  }
+  assert.equal(formatted, 13);
+  assert.deepEqual(divisions, ['القسم الأول', 'القسم الثاني', 'القسم الثالث', 'القسم الرابع']);
+  assert.equal(JSON.stringify(chapter), before);
+});
+
+test("ambiguous outline entries and unrelated prose retain the ordinary passage rendering", () => {
+  const chapter = chapters.find(chapter => chapter.slug === 'muqaddima');
+  const passages = getReadingSections(chapter).flatMap(section => section.passages);
+  const ambiguous = passages.find(passage => passage.id.endsWith('-019'));
+  const allowed = passages.find(passage => passage.id.endsWith('-017'));
+  for (const [chapterId, passage] of [
+    [chapter.id, ambiguous],
+    ['another-chapter', allowed],
+    [chapter.id, { ...allowed, kind: 'demonstration' }],
+    [chapter.id, { ...allowed, id: 'unrelated-passage' }],
+    [chapter.id, { ...allowed, text: 'نص مختلف (القسم الثاني) داخل فقرة.' }],
+  ]) {
+    assert.equal(introOutlineEntries(chapterId, passage), null);
+    const html = renderToStaticMarkup(createElement(IntroOutlinePassage, { chapterId, passage }));
+    assert.equal(html, `<p id="${passage.id}" data-reader-passage="true" data-content-kind="${passage.kind}" dir="auto">${passage.text}</p>`);
+  }
+});
+
+test("division metadata separates labels from descriptions without treating outline references as headings", () => {
+  for (const ordinal of ['الأول', 'الثاني', 'الثالث', 'الرابع']) {
+    for (const title of [`القسم ${ordinal} وصف اختباري`, `(القسم ${ordinal}) وصف اختباري`, `(القسم ${ordinal}:) وصف اختباري`]) {
+      assert.deepEqual(readerHeading(title), { level: 'division', label: `القسم ${ordinal}`, description: 'وصف اختباري' });
+    }
+  }
+  for (const title of ['مقدمة القسم الثاني', 'في بيان القسم الثاني', 'القسم الأولية']) {
+    const heading = readerHeading(title);
+    assert.notEqual(heading.level, 'division');
+    assert.equal(heading.label, title);
+    assert.equal(heading.description, null);
+  }
+  assert.equal(readerHeading('الباب الأول في ثناء الله تعالى عليه').level, 'bab');
+  assert.equal(readerHeading('(الباب الثاني) عنوان اختباري').level, 'bab');
+  assert.equal(readerHeading('الفصل الأول').level, 'fasl');
+});
+
+test("heading presentation leaves every imported passage, boundary, ID and source unchanged", () => {
+  for (const chapter of chapters) {
+    if (chapter.kind !== 'original') continue;
+    const rendered = getReadingSections(chapter);
+    assert.equal(rendered.length, chapter.sections.length);
+    rendered.forEach((section, index) => {
+      readerHeading(section.title);
+      const original = chapter.sections[index];
+      assert.equal(section.id, original.id);
+      assert.equal(section.title, original.title);
+      assert.deepEqual(section.passages.map(({ id, text, source }) => ({ id, originalText: text, source })), original.passages);
+    });
+  }
+});
 const progress = { version: 1, chapterId: chapters[0].id, chapterSlug: chapters[0].slug, ratio: .43, passageId: `${chapters[0].id}:passage:welcome-03`, passageOffset: .2, updatedAt: 12345 };
 
 test("progress round-trips chapter, scroll ratio and passage anchor; storage is separated by book", () => {
@@ -166,5 +266,18 @@ test("site text, primary controls, and all reader text palettes meet AA contrast
   for (const [bg, ink, muted] of [['#fff','#252820','#62695e'], ['#f8f5ec','#252820','#64675b'], ['#17231f','#e6e7df','#b7c0b4']]) {
     assert.ok(contrast(ink,bg) >= 4.5);
     assert.ok(contrast(muted,bg) >= 4.5);
+  }
+});
+
+test("formatNumber and arabicNumber standardize numbers to Western digits for UI presentation", async () => {
+  const { formatNumber, arabicNumber } = await import("../src/lib/reader-state.ts");
+  assert.equal(arabicNumber(0), "0");
+  assert.equal(arabicNumber(42), "42");
+  assert.equal(arabicNumber("12"), "12");
+  assert.equal(formatNumber(100), "100");
+  assert.equal(formatNumber("404"), "404");
+  for (let i = 0; i <= 9; i++) {
+    assert.equal(arabicNumber(i), String(i));
+    assert.equal(formatNumber(i), String(i));
   }
 });

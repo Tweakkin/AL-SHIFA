@@ -1,0 +1,289 @@
+{
+  "scope": {
+    "divisions": 4,
+    "chapters": 14,
+    "sections": 170,
+    "passages": 4831,
+    "rawLines": 13047
+  },
+  "hashes": {
+    "rawSha256": "aee86770fe07de72884b5399de60d43859001146ddecd38eb49a2b0bb448f7ac",
+    "rawLfSha256": "77c0ea56402ba3e854d58906e9c1f8fcd166a25d0b4ed641df2197c1b220ccc1",
+    "importedPassageSnapshotSha256": "3409ca7562962aebfaa0d0db956169b9f7bffc25c744b2d9b519e124db2f7c56"
+  },
+  "structuralState": {
+    "replayMatches": true,
+    "titleMatches": true,
+    "idsOrdered": true,
+    "citationsMatchingFirstSourcePage": 4828,
+    "citationsDifferingFromFirstSourcePage": 0
+  },
+  "chapterSummary": [
+    {
+      "slug": "muqaddima",
+      "title": "مقدمة المؤلف",
+      "sections": 1,
+      "passages": 25,
+      "sourceLineRange": [
+        39,
+        147
+      ]
+    },
+    {
+      "slug": "qism-1-bab-1",
+      "title": "القسم الأول: الباب الأول — في ثناء الله تعالى عليه وإظهاره عظيم قدره لديه",
+      "sections": 12,
+      "passages": 421,
+      "sourceLineRange": [
+        158,
+        951
+      ]
+    },
+    {
+      "slug": "qism-1-bab-2",
+      "title": "القسم الأول: الباب الثاني — في تكميل الله تعالى له المحاسن خلقا وخلقا",
+      "sections": 27,
+      "passages": 774,
+      "sourceLineRange": [
+        952,
+        2602
+      ]
+    },
+    {
+      "slug": "qism-1-bab-3",
+      "title": "القسم الأول: الباب الثالث — فيما ورد من صحيح الأخبار بعظيم قدره عند ربه",
+      "sections": 16,
+      "passages": 681,
+      "sourceLineRange": [
+        2603,
+        4137
+      ]
+    },
+    {
+      "slug": "qism-1-bab-4",
+      "title": "القسم الأول: الباب الرابع — فيما أظهره الله تعالى على يديه من المعجزات والخصائص",
+      "sections": 30,
+      "passages": 649,
+      "sourceLineRange": [
+        4138,
+        6286
+      ]
+    },
+    {
+      "slug": "qism-2-bab-1",
+      "title": "القسم الثاني: الباب الأول — في فرض الإيمان به ووجوب طاعته واتباع سنته",
+      "sections": 6,
+      "passages": 95,
+      "sourceLineRange": [
+        6710,
+        7015
+      ]
+    },
+    {
+      "slug": "qism-2-bab-2",
+      "title": "القسم الثاني: الباب الثاني — في لزوم محبته صلى الله عليه وسلم ومناصحته",
+      "sections": 6,
+      "passages": 119,
+      "sourceLineRange": [
+        7016,
+        7337
+      ]
+    },
+    {
+      "slug": "qism-2-bab-3",
+      "title": "القسم الثاني: الباب الثالث — في تعظيم أمره ووجوب توقيره وبره",
+      "sections": 7,
+      "passages": 162,
+      "sourceLineRange": [
+        7338,
+        7784
+      ]
+    },
+    {
+      "slug": "qism-2-bab-4",
+      "title": "القسم الثاني: الباب الرابع — في حكم الصلاة عليه والتسليم وفرض ذلك وفضيلته",
+      "sections": 10,
+      "passages": 333,
+      "sourceLineRange": [
+        7785,
+        8566
+      ]
+    },
+    {
+      "slug": "qism-3-bab-1",
+      "title": "القسم الثالث: الباب الأول — في ما يختص بالأمور الدينية والكلام في عصمة الأنبياء",
+      "sections": 19,
+      "passages": 737,
+      "sourceLineRange": [
+        8567,
+        10435
+      ]
+    },
+    {
+      "slug": "qism-3-bab-2",
+      "title": "القسم الثالث: الباب الثاني — فيما يطرأ عليهم من العوارض والأحوال البشرية",
+      "sections": 9,
+      "passages": 202,
+      "sourceLineRange": [
+        10436,
+        11080
+      ]
+    },
+    {
+      "slug": "qism-4-bab-1",
+      "title": "القسم الرابع: الباب الأول — في بيان ما هو في حقه صلى الله عليه وسلم سب أو نقص",
+      "sections": 12,
+      "passages": 262,
+      "sourceLineRange": [
+        11081,
+        11924
+      ]
+    },
+    {
+      "slug": "qism-4-bab-2",
+      "title": "القسم الرابع: الباب الثاني — في حكم سابه وشانئه ومتنقصه ومؤذيه وعقوبته",
+      "sections": 5,
+      "passages": 121,
+      "sourceLineRange": [
+        11925,
+        12263
+      ]
+    },
+    {
+      "slug": "qism-4-bab-3",
+      "title": "القسم الرابع: الباب الثالث — في حكم من سب الله وملائكته وأنبياءه وآله وصحبه وخاتمة الكتاب",
+      "sections": 10,
+      "passages": 250,
+      "sourceLineRange": [
+        12264,
+        13047
+      ]
+    }
+  ],
+  "counts": {
+    "unbalanced-guillemets": 429,
+    "possible-joined-arabic-word": 2,
+    "possible-duplicated-word": 60,
+    "unbalanced-parentheses": 19,
+    "source-outline-label-repetition": 1,
+    "possible-truncation-or-fragment": 16,
+    "source-declared-section-count-discrepancy": 2,
+    "unbounded-final-source-page": 3,
+    "identical-passage-text": 20,
+    "excluded-source-range": 2,
+    "heading-represented-by-following-heading": 13
+  },
+  "classifications": {
+    "unresolved": 531,
+    "legitimate-source-feature": 36
+  },
+  "delimiterTotals": {
+    "«": 2453,
+    "»": 2399,
+    "(": 55,
+    ")": 52,
+    "[": 2,
+    "]": 2,
+    "{": 0,
+    "}": 0,
+    "\"": 0
+  },
+  "inventory": {
+    "numericFootnoteMarkersRemoved": 7796,
+    "milestoneMarkersRemoved": 408,
+    "rawHeadingCount": 185,
+    "includedSourceParagraphStarts": 5966,
+    "mergedSourceParagraphStarts": 1135,
+    "paragraphPolicy": "The importer joins # paragraphs unless previous text ends in . : ؟ ! ؛; ~~ is always joined. This is not a diplomatic transcription."
+  },
+  "totalFindings": 567,
+  "confirmedCitationCorrectionsRecorded": 4480,
+  "omittedLines": [],
+  "shadowedHeadings": [
+    {
+      "chapter": "qism-1-bab-1",
+      "title": "القسم الأول في تعظيم العلي الأعلى لقدر النبي المصطفى صلى الله عليه وسلم قولا وفعلا",
+      "sourceLine": 158,
+      "nextHeading": "مقدمة القسم الأول"
+    },
+    {
+      "chapter": "qism-1-bab-2",
+      "title": "الباب الثاني في تكميل الله تعالى له المحاسن خلقا وخلقا وقرانه جميع الفضائل الدينية والدنيوية فيه نسقا وفيه سبعة وعشرون فصلا",
+      "sourceLine": 952,
+      "nextHeading": "مقدمة الباب الثاني"
+    },
+    {
+      "chapter": "qism-1-bab-4",
+      "title": "الباب الرابع فيما أظهره الله على يديه منه المعجزات وشرفه به من الخصائص والكرامات وفيه ثلاثون فصلا",
+      "sourceLine": 4138,
+      "nextHeading": "الفصل الأول مقدمة"
+    },
+    {
+      "chapter": "qism-2-bab-1",
+      "title": "القسم الثاني",
+      "sourceLine": 6710,
+      "nextHeading": "مقدمة القسم الثاني"
+    },
+    {
+      "chapter": "qism-2-bab-1",
+      "title": "الباب الأول في فرض الإيمان به ووجوب طاعته واتباع سنته وفيه خمسة فصول",
+      "sourceLine": 6718,
+      "nextHeading": "الفصل الأول فرض الإيمان به"
+    },
+    {
+      "chapter": "qism-2-bab-2",
+      "title": "الباب الثاني في لزوم محبته صلى الله عليه وسلم وفيه ستة فصول",
+      "sourceLine": 7016,
+      "nextHeading": "الفصل الأول لزوم محبته صلى الله عليه وسلم"
+    },
+    {
+      "chapter": "qism-2-bab-3",
+      "title": "الباب الثالث في تعظيم أمره ووجوب توقيره وبره وفيه سبعة فصول",
+      "sourceLine": 7338,
+      "nextHeading": "الفصل الأول ما ورد في ذلك"
+    },
+    {
+      "chapter": "qism-2-bab-4",
+      "title": "الباب الرابع في حكم الصلاة عليه والتسليم وفرض ذلك وفضيلته وفيه عشرة فصول",
+      "sourceLine": 7785,
+      "nextHeading": "الفصل الأول معنى الصلاة عليه"
+    },
+    {
+      "chapter": "qism-3-bab-1",
+      "title": "الباب الأول في ما يختص بالأمور الدينية والكلام في عصمة نبينا عليه الصلاة والسلام وسائر الأنبياء صلوات الله عليهم أجمعين. وفيه ستة عشر فصلا",
+      "sourceLine": 8611,
+      "nextHeading": "تمهيد"
+    },
+    {
+      "chapter": "qism-3-bab-2",
+      "title": "الباب الثاني في ما يخصتهم الأمور الدنيوية ويطرأ عليهم من العوارض البشرية وفيه تسعة فصول",
+      "sourceLine": 10436,
+      "nextHeading": "الفصل الأول حالة الأنبياء بالنسبة للعوارض البشرية"
+    },
+    {
+      "chapter": "qism-4-bab-1",
+      "title": "الباب الأول في بيان ما هو في حقه صلى الله عليه وسلم سب أو نقص من تعريض أو نص وفيه عشرة فصول",
+      "sourceLine": 11144,
+      "nextHeading": "الفصل الأول الحكم الشرعي فيمن سب النبي صلى الله عليه وسلم أو تنقصه"
+    },
+    {
+      "chapter": "qism-4-bab-2",
+      "title": "الباب الثاني في حكم سابه وشانئه ومتنقصه ومؤذيه وعقوبته وذكر استتابته ووراثته وفيه خمسة فصول",
+      "sourceLine": 11925,
+      "nextHeading": "الفصل الأول الأقوال والاراء في حكم من سب النبي صلى الله عليه وسلم أو تنقصه"
+    },
+    {
+      "chapter": "qism-4-bab-3",
+      "title": "الباب الثالث في حكم من سب الله تعالى وملائكته وأنبياء وكتبه وآل النبي صلى الله عليه وسلم وأزواجه وصحبه وفيه عشرة فصول",
+      "sourceLine": 12264,
+      "nextHeading": "الفصل الأول حكم ساب الله تعالى وحكم استتابته"
+    }
+  ],
+  "limitations": [
+    "Comparison is to the selected OpenITI digital transcription, not a page-by-page collation against printed witnesses.",
+    "Source-inherited suspicious readings remain unresolved; digitization provenance is not evidence of authentic authorial wording.",
+    "The selected Shamela edition explicitly removes isnads; it is not the unabridged authorial text.",
+    "Heuristics cannot reliably detect every joined Arabic word, lost sentence, malformed diacritic or source-level omission.",
+    "Per-passage quote imbalance can span passages; counts are review candidates rather than proven errors."
+  ]
+}

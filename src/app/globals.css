@@ -9,7 +9,7 @@
   --font-reading: var(--font-amiri);
 }
 
-:root { --forest: #173f35; --ivory: #f8f5ec; --gold: #806638; --ink: #252820; --muted: #666b60; --line: #e4e4da; --page: #fff; --surface: #fff; --button-bg: #173f35; --button-ink: #fff; --button-hover: #245447; --footer-bg: #173f35; --brand-line: #d9ddd4; --hero-line: #e8e4d9; --eyebrow: #796943; --input-line: #deddd1; --input-icon: #64675b; --placeholder: #64675b; --note: #64675b; --explore: #64675b; --panel: #f5f6f0; --panel-line: #e6e9df; --author: #6c6955; --availability: #64675b; --arch: #d8ddcd; --arch-inner: #e0e3d6; --caption: #64675b; --stage: #f1f3ed; --stage-line: #e8eae2; --stage-wine: #f4efeb; --stage-wine-line: #eee6e0; --stage-sand: #f6f2e8; --stage-sand-line: #eee9dc; --stage-slate: #edf1f0; --stage-slate-line: #e4e9e7; --index: #64675b; --stage-arrow: #64675b; --status: #796943; --library-note: #64675b; --note-surface: #f8f9f5; --note-line: #e9ece2; --closing-line: #e3e3d7; --empty: #fafbf8; --selection: #dbe5df; color-scheme: light; }
+:root { --forest: #173f35; --ivory: #f8f5ec; --gold: #806638; --ink: #252820; --muted: #666b60; --line: #e4e4da; --page: #faf8f3; --surface: #fff; --button-bg: #173f35; --button-ink: #fff; --button-hover: #245447; --footer-bg: #173f35; --brand-line: #d9ddd4; --hero-line: #e8e4d9; --eyebrow: #796943; --input-line: #deddd1; --input-icon: #64675b; --placeholder: #64675b; --note: #64675b; --explore: #64675b; --panel: #f5f6f0; --panel-line: #e6e9df; --author: #6c6955; --availability: #64675b; --arch: #d8ddcd; --arch-inner: #e0e3d6; --caption: #64675b; --stage: #f1f3ed; --stage-line: #e8eae2; --stage-wine: #f4efeb; --stage-wine-line: #eee6e0; --stage-sand: #f6f2e8; --stage-sand-line: #eee9dc; --stage-slate: #edf1f0; --stage-slate-line: #e4e9e7; --index: #64675b; --stage-arrow: #64675b; --status: #796943; --library-note: #64675b; --note-surface: #f8f9f5; --note-line: #e9ece2; --closing-line: #e3e3d7; --empty: #fafbf8; --selection: #dbe5df; color-scheme: light; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 body { margin: 0; color: var(--ink); background: var(--page); font-family: var(--font-plex), sans-serif; font-size: 16px; -webkit-font-smoothing: antialiased; }
@@ -147,7 +147,7 @@ h1, h2, h3, p { margin: 0; }
 .placeholder-page h1, .book-placeholder h1 { font-family: var(--font-amiri), serif; font-size: clamp(30px, 4vw, 45px); font-weight: 400; color: var(--forest); margin-block: 18px; line-height: 1.7; }
 .placeholder-page p, .book-placeholder p { font-size: 15px; line-height: 2.1; color: var(--muted); }
 .placeholder-page .placeholder-note, .book-placeholder .placeholder-note { font-size: 12px; margin-block: 22px; }
-.catalog-surface { position: relative; isolation: isolate; background: var(--ivory); }
+.catalog-surface { position: relative; isolation: isolate; background: var(--catalog-page, var(--page)); }
 .catalog-surface > .hero-pattern { height: 250px; opacity: .05; mask-image: linear-gradient(to bottom, #000, transparent); }
 .catalog-page { position: relative; padding-block: 32px 48px; min-height: 70vh; }
 .catalog-heading h1 { font-family: var(--font-amiri), serif; font-weight: 400; color: var(--forest); font-size: 44px; line-height: 1.6; margin-block: 4px; }
@@ -261,16 +261,68 @@ h1, h2, h3, p { margin: 0; }
 .book-profile-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 64px; margin-top: 44px; }
 .book-profile-body > .book-detail-section { margin-top: 0; min-width: 0; }
 .book-about-description { max-width: 42ch; font-family: var(--font-amiri), serif; font-size: 23px; line-height: 2; color: var(--ink); }
+/* Compact presentation for the imported Shifa; retain the current cover and cards. */
+.book-detail-shifa .detail-description { font-size: 20px; line-height: 1.8; max-width: 48ch; }
+.book-detail-shifa .book-profile-body { grid-template-columns: minmax(0, 1fr); gap: 26px; margin-top: 26px; }
+.book-detail-shifa .book-about-description { max-width: 70ch; font-size: 19px; line-height: 1.85; }
+.book-detail-shifa .detail-author { color: var(--gold); }
+.book-detail-shifa .detail-section-heading h2 { font-weight: 700; }
+.book-detail-shifa .book-about .detail-section-heading { margin-bottom: 12px; }
+.book-detail-shifa .table-of-contents-section { margin-top: 32px; }
+.book-detail-shifa .chapter-selection-nav { gap: 28px; margin-top: 18px; }
+.book-detail-shifa .chapter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.book-detail-shifa .chapter-group-header { flex-wrap: wrap; gap: 8px 16px; }
+.book-detail-shifa .chapter-card { background: #f2eee5; padding-block: 12px; height: 100%; }
+.book-detail-shifa .chapter-card:hover { background: var(--ivory); border-color: var(--gold); }
+.book-detail-shifa .chapter-card:focus-visible { outline-color: var(--gold); border-color: var(--gold); }
+.book-detail-shifa .chapter-card-arrow { opacity: .8; }
+.book-detail-shifa .chapter-card-meta { color: var(--note); font-weight: 500; }
+html[data-theme="dark"] .book-detail-shifa .chapter-card { background: var(--surface); }
+html[data-theme="dark"] .book-detail-shifa .chapter-card:hover { background: var(--panel); }
+.book-detail-shifa .chapter-card-title { font-family: var(--font-plex), sans-serif; font-size: 18px; font-weight: 500; line-height: 1.85; }
+@media (max-width: 760px) {
+  .book-detail-shifa .detail-description { font-size: 18px; }
+  .book-detail-shifa .book-about-description { font-size: 18px; }
+  .book-detail-shifa .chapter-card-title { font-size: 17px; }
+}
+@media (max-width: 1100px) { .book-detail-shifa .chapter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .book-detail-shifa .chapter-grid { grid-template-columns: 1fr; } }
 .source-link { text-decoration: underline; text-underline-offset: 4px; }
 .contents-notice { background: var(--ivory); border: 1px solid var(--line); border-radius: 3px; padding: 18px 22px; font-size: 13px; line-height: 2.05; color: var(--muted); }
-.contents-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
-.contents-list > li { border-bottom: 1px solid var(--line); }
-.contents-link { display: flex; align-items: center; gap: 16px; padding: 18px 14px; min-height: 88px; color: var(--forest); border-radius: 2px; }
-.contents-link:hover { background: var(--empty); }
-.contents-number { display: inline-flex; justify-content: center; align-items: center; width: 30px; height: 30px; flex-shrink: 0; border: 1px solid var(--line); font-size: 11px; color: var(--status); }
-.contents-title { flex: 1; font-size: 16px; font-weight: 500; line-height: 1.8; }
-.contents-label { display: block; font-size: 10px; font-weight: 400; color: var(--muted); margin-top: 3px; }
-.contents-link > svg { flex-shrink: 0; }
+.contents-subtitle { font-size: 12px; color: var(--status); font-variant-numeric: tabular-nums; }
+.table-of-contents-section { margin-top: 52px; }
+.chapter-selection-nav { display: flex; flex-direction: column; gap: 32px; margin-top: 24px; }
+.chapter-group { display: flex; flex-direction: column; gap: 16px; }
+.chapter-group-header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.chapter-group-title { font-family: var(--font-amiri), serif; font-size: 21px; font-weight: 700; color: var(--forest); line-height: 1.6; }
+.chapter-group-count { font-size: 12px; color: var(--muted); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.chapter-card { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 120px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; text-decoration: none; color: var(--ink); transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
+.chapter-card:hover { transform: translateY(-2px); border-color: var(--forest); background: var(--panel); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06); }
+html[data-theme="dark"] .chapter-card:hover { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); }
+.chapter-card:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; border-color: var(--forest); }
+.chapter-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.chapter-card-number { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--stage); border: 1px solid var(--line); color: var(--forest); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; flex-shrink: 0; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+.chapter-card:hover .chapter-card-number { background: var(--button-bg); color: var(--button-ink); border-color: var(--button-bg); }
+.chapter-card-arrow { color: var(--muted); opacity: 0.5; transition: transform 0.2s ease, color 0.2s ease, opacity 0.2s ease; flex-shrink: 0; }
+.chapter-card:hover .chapter-card-arrow { color: var(--forest); opacity: 1; transform: translateX(-4px); }
+.chapter-card-title { font-family: var(--font-amiri), serif; font-size: 17px; font-weight: 600; line-height: 1.6; color: var(--ink); margin: 0; flex-grow: 1; }
+.chapter-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.chapter-card-meta { font-size: 12px; color: var(--status); font-variant-numeric: tabular-nums; }
+.chapter-card-label { font-size: 11px; color: var(--muted); }
+/* Contents hierarchy: a compact heading row, then division groups and cards. */
+.table-of-contents-section > .detail-section-heading { flex-wrap: nowrap; align-items: center; gap: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 0; }
+.table-of-contents-section .contents-subtitle { color: var(--muted); white-space: nowrap; }
+.chapter-card { min-height: 104px; padding: 14px 16px; }
+.chapter-card-top { align-items: baseline; margin-bottom: 0; }
+.chapter-card-title { color: var(--forest); font-size: 19px; font-weight: 700; line-height: 1.65; min-width: 0; }
+.chapter-card-arrow { align-self: center; }
+.chapter-card-number { width: 28px; height: 28px; font-size: 12px; align-self: center; }
+.chapter-card-footer { margin-top: 10px; padding-top: 8px; border-top-style: solid; }
+.chapter-card-meta { color: var(--muted); font-size: 11px; }
+.book-detail-shifa .chapter-group-introduction .chapter-grid { grid-template-columns: minmax(0, 1fr); }
+.chapter-group-introduction .chapter-card { min-height: 76px; }
+.chapter-group-introduction .chapter-card-footer { border: 0; margin-top: 4px; padding-top: 0; padding-inline-start: 40px; }
 .temporary-reading-page { padding-block: 30px 64px; min-height: 70vh; }
 .temporary-reading-panel { max-width: 740px; margin-inline: auto; text-align: center; padding: 35px 0 15px; }
 .temporary-reading-panel > svg { color: var(--gold); display: block; margin: 0 auto 23px; }
@@ -297,9 +349,12 @@ h1, h2, h3, p { margin: 0; }
   .detail-section-heading h2 { font-size: 27px; }
   .bibliography-grid { grid-template-columns: 1fr; }
   .bibliography-grid { gap: 16px; }
-  .contents-notice { font-size: 12px; padding: 15px 17px; }
-  .contents-link { padding-block: 18px; gap: 15px; }
-  .contents-title { font-size: 15px; }
+  .table-of-contents-section { margin-top: 36px; }
+  .chapter-selection-nav { gap: 24px; margin-top: 18px; }
+  .chapter-group-title { font-size: 18px; }
+  .chapter-grid { grid-template-columns: 1fr; gap: 12px; }
+  .chapter-card { min-height: 104px; padding: 14px 16px; }
+  .chapter-card-title { font-size: 16px; }
   .temporary-reading-panel { padding-top: 18px; }
   .temporary-reading-panel h1 { font-size: 31px; }
 }
@@ -325,3 +380,4 @@ h1, h2, h3, p { margin: 0; }
   .hero h1.font-maghribi { font-size: 108px; }
   .section-header h2.font-maghribi { font-size: 32px; line-height: 1.54; }
 }
+

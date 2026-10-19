@@ -5,11 +5,14 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, List, Minus, Plus, Settings2, X } from "lucide-react";
 import type { ReadingSection } from "@/content/reader-demonstration";
 import { capturePosition, restorePosition } from "@/lib/reader-position";
+import { readerHeading } from "@/lib/reader-headings";
+import { IntroOutlinePassage } from "./intro-outline";
+import { Ornament } from "@/components/ornament";
 import { useTheme } from "@/components/theme-provider";
 import {
   arabicNumber, MAX_FONT_SIZE, MIN_FONT_SIZE, parseProgress,
-  progressKey, shouldRestoreProgress,
-  type ChapterReference, type ReaderPreferences, type ReadingTheme,
+  progressKey, shouldRestoreProgress, isRepeatedChapterHeading,
+  type ChapterReference, type ReaderPreferences, type ReadingTheme, type ReadingFont,
 } from "@/lib/reader-state";
 
 type ReaderProps = {
@@ -38,7 +41,7 @@ export function BookReader({ bookSlug, bookTitle, chapter, chapters, sections }:
   const currentIndex = chapters.findIndex((item) => item.id === chapter.id);
   const previous = chapters[currentIndex - 1];
   const next = chapters[currentIndex + 1];
-  const fontSize = preferences.fontSize ?? (mobile ? 20 : 22);
+  const fontSize = preferences.fontSize ?? (mobile ? 19 : 22);
   const percentComplete = Math.round(ratio * 100);
 
   useLayoutEffect(() => {
@@ -160,7 +163,7 @@ export function BookReader({ bookSlug, bookTitle, chapter, chapters, sections }:
   function updatePreferences(nextPreferences: ReaderPreferences) {
     const position = articleRef.current ? capturePosition(articleRef.current, toolbarRef.current) : null;
     savePreferences(nextPreferences);
-    if (position && articleRef.current && nextPreferences.fontSize !== preferences.fontSize) {
+    if (position && articleRef.current && (nextPreferences.fontSize !== preferences.fontSize || nextPreferences.fontFamily !== preferences.fontFamily)) {
       window.requestAnimationFrame(() => {
         if (articleRef.current) restorePosition(articleRef.current, toolbarRef.current, position);
         flushRef.current();
@@ -180,9 +183,13 @@ export function BookReader({ bookSlug, bookTitle, chapter, chapters, sections }:
   }
   function chapterLinks() {
     return <nav aria-label="فصول الكتاب"><ol>{chapters.map((item, index) => <li key={item.id}><Link href={`/read/${bookSlug}/${item.slug}?start=1`} scroll={false} onClick={navigateChapter} aria-current={item.id === chapter.id ? "page" : undefined}>
-      <span className="reader-toc-index" aria-hidden="true">{arabicNumber(index + 1)}</span><span>{item.title}</span>
+      <span className="reader-toc-index" aria-hidden="true">{index + 1}</span><span>{item.title}</span>
     </Link></li>)}</ol></nav>;
   }
+
+  const divisionMatch = chapter.title.match(/^(القسم\s+[^:]+):\s*(.*)$/);
+  const divisionName = divisionMatch ? divisionMatch[1] : null;
+  const mainChapterTitle = divisionMatch ? divisionMatch[2] : chapter.title;
 
   return <main id="main" tabIndex={-1} ref={shellRef} className="reader-shell" data-ready={ready} data-position-ready={positionReady} data-toc-open={tocOpen && !mobile}>
     <header className="reader-topbar" ref={toolbarRef}>
@@ -191,14 +198,15 @@ export function BookReader({ bookSlug, bookTitle, chapter, chapters, sections }:
           <Link className="reader-navigation-button" href={`/books/${bookSlug}`} onClick={() => flushRef.current()} aria-label="العودة للكتاب" title="العودة للكتاب"><ArrowRight size={19} aria-hidden="true" /><span>العودة للكتاب</span></Link>
           <button type="button" ref={contentsButtonRef} className="reader-navigation-button" aria-label="فهرس الكتاب" title="فهرس الكتاب" aria-expanded={tocOpen} aria-controls={mobile ? "reader-mobile-contents" : "reader-desktop-contents"} aria-haspopup={mobile ? "dialog" : undefined} disabled={!ready} onClick={toggleContents}><List size={19} aria-hidden="true" /><span>فهرس الكتاب</span></button>
         </div>
-        <div className="reader-toolbar-title"><span>{bookTitle}</span><small>{chapter.title} · {arabicNumber(currentIndex + 1)} / {arabicNumber(chapters.length)}</small></div>
+        <div className="reader-toolbar-title"><span>{bookTitle}</span><small>{chapter.title} · {currentIndex + 1} / {chapters.length}</small></div>
         <div className="reader-toolbar-actions">
           <button type="button" ref={settingsButtonRef} className="reader-icon-button" aria-label="إعدادات القراءة" aria-expanded={settingsOpen} aria-controls="reader-settings" disabled={!ready} onClick={() => setSettingsOpen(!settingsOpen)}><Settings2 size={20} aria-hidden="true" /></button>
-          <span className="reader-progress" role="progressbar" aria-label="التقدم في الفصل الحالي" title="نسبة اكتمال الفصل الحالي" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentComplete} aria-valuetext={`${arabicNumber(percentComplete)}٪ مكتمل من الفصل الحالي`}><bdi>{arabicNumber(percentComplete)}٪</bdi><span>مكتمل</span></span>
+          <span className="reader-progress" role="progressbar" aria-label="التقدم في الفصل الحالي" title="نسبة اكتمال الفصل الحالي" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentComplete} aria-valuetext={`${percentComplete}٪ مكتمل من الفصل الحالي`}><bdi>{percentComplete}٪</bdi><span>مكتمل</span></span>
         </div>
       </div>
       <section id="reader-settings" className="reader-settings" aria-label="تخصيص القراءة" hidden={!settingsOpen}>
-        <div className="reader-setting-group" role="group" aria-label="حجم خط القراءة"><span>حجم الخط</span><button type="button" aria-label="تصغير الخط" disabled={!ready || fontSize <= MIN_FONT_SIZE} onClick={() => updatePreferences({ ...preferences, fontSize: Math.max(MIN_FONT_SIZE, fontSize - 2) })}><Minus size={18} aria-hidden="true" /></button><output className="reader-font-output" aria-label="حجم الخط بالبكسل">{ready ? arabicNumber(fontSize) : "—"}</output><button type="button" aria-label="تكبير الخط" disabled={!ready || fontSize >= MAX_FONT_SIZE} onClick={() => updatePreferences({ ...preferences, fontSize: Math.min(MAX_FONT_SIZE, fontSize + 2) })}><Plus size={18} aria-hidden="true" /></button></div>
+        <div className="reader-setting-group reader-font-family"><label htmlFor="reader-font-family">خط القراءة</label><select id="reader-font-family" value={preferences.fontFamily} disabled={!ready} onChange={(event) => updatePreferences({ ...preferences, fontFamily: event.target.value as ReadingFont })}><option value="plex">خط حديث — IBM Plex Sans Arabic</option><option value="amiri">خط تراثي — Amiri</option></select></div>
+        <div className="reader-setting-group" role="group" aria-label="حجم خط القراءة"><span>حجم الخط</span><button type="button" aria-label="تصغير الخط" disabled={!ready || fontSize <= MIN_FONT_SIZE} onClick={() => updatePreferences({ ...preferences, fontSize: Math.max(MIN_FONT_SIZE, fontSize - 2) })}><Minus size={18} aria-hidden="true" /></button><output className="reader-font-output" aria-label="حجم الخط بالبكسل">{ready ? fontSize : "—"}</output><button type="button" aria-label="تكبير الخط" disabled={!ready || fontSize >= MAX_FONT_SIZE} onClick={() => updatePreferences({ ...preferences, fontSize: Math.min(MAX_FONT_SIZE, fontSize + 2) })}><Plus size={18} aria-hidden="true" /></button></div>
         <div className="reader-setting-group reader-theme-group" role="group" aria-label="مظهر القراءة">{([ ["white", "أبيض"], ["ivory", "عاجي"], ["dark", "داكن"] ] as const).map(([theme, label]) => <button type="button" key={theme} aria-label={`المظهر ${label}`} aria-pressed={preferences.theme === theme} onClick={() => updatePreferences({ ...preferences, theme: theme as ReadingTheme })}><span className={`reader-theme-dot reader-theme-${theme}`} aria-hidden="true" />{label}</button>)}</div>
         {(!canPersist || !preferencesCanPersist) && <p className="reader-storage-note" role="status">الحفظ المحلي غير متاح في هذا المتصفح؛ قد لا تبقى إعداداتك وموضعك بعد المغادرة.</p>}
       </section>
@@ -215,9 +223,28 @@ export function BookReader({ bookSlug, bookTitle, chapter, chapters, sections }:
 
     <div className="reader-main">
       <article className="reader-document" ref={articleRef} aria-labelledby="reader-chapter-title" data-chapter-id={chapter.id}>
-        <div className="reader-chapter-heading"><p>{arabicNumber(currentIndex + 1)} / {arabicNumber(chapters.length)}</p><h1 id="reader-chapter-title">{chapter.title}</h1></div>
+        <div className="reader-chapter-heading">
+          <p className="reader-chapter-indicator">{currentIndex + 1} / {chapters.length}</p>
+          {divisionName && <span className="reader-division-eyebrow">{divisionName}</span>}
+          <div className="reader-title-ornament" aria-hidden="true"><span /><Ornament /><span /></div>
+          <h1 id="reader-chapter-title">{mainChapterTitle}</h1>
+          <div className="reader-title-divider" aria-hidden="true" />
+        </div>
         {chapter.kind === "demonstration" && <p className="reader-demo-notice">نص تحريري لتجربة واجهة القراءة، وليس من الكتاب الأصلي أو من طبعة علمية معتمدة.</p>}
-        {sections.map((section) => <section className="reader-section" key={section.id} aria-labelledby={`${section.id}:heading`}><h2 id={`${section.id}:heading`}>{section.title}</h2>{section.passages.map((passage) => <p key={passage.id} id={passage.id} data-reader-passage data-content-kind={passage.kind} dir="auto">{passage.text}</p>)}</section>)}
+        {sections.map((section, index) => {
+          const heading = readerHeading(section.title);
+          const { level } = heading;
+          const repeatedHeading = isRepeatedChapterHeading(section.title, chapter.title, index);
+          return (
+            <section className={`reader-section reader-section-${level}`} key={section.id} data-heading-level={level} data-heading-suppressed={repeatedHeading || undefined} aria-labelledby={repeatedHeading ? "reader-chapter-title" : `${section.id}:heading`}>
+              {!repeatedHeading && <h2 id={`${section.id}:heading`} className={`reader-heading reader-heading-${level}`}>
+                <span className="reader-heading-label">{heading.label}</span>
+                {heading.description && <> <span className="reader-heading-description">{heading.description}</span></>}
+              </h2>}
+              {section.passages.map((passage) => <IntroOutlinePassage key={passage.id} chapterId={chapter.id} passage={passage} />)}
+            </section>
+          );
+        })}
         {!sections.length && <p className="reader-demo-notice">لم يتوفر نص لهذا الفصل بعد.</p>}
         <p className="reader-chapter-end">{chapter.kind === "demonstration" ? "نهاية الفصل التجريبي" : "نهاية الفصل"}</p>
       </article>

@@ -52,7 +52,7 @@ test("navigation fixtures are labeled demonstrations and contain no invented boo
   }
 });
 
-test("al-shifa has complete authentic content: 14 chapters, 170 sections, and 4,831 verified passages", () => {
+test("al-shifa import inventory has 14 chapters, 170 sections, and 4,831 original-kind passages", () => {
   const shifa = getBookDocument("al-shifa");
   assert.ok(shifa);
   assert.equal(shifa.content.chapters.length, 14);

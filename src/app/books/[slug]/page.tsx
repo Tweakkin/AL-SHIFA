@@ -29,9 +29,11 @@ export default async function BookDetailsPage({ params }: PageProps) {
   if (!document) notFound();
   const { book, content } = document;
   const firstChapter = content.chapters[0];
-  const introduction = book.editorial.description.match(/^.*?[.؟!](?:\s|$)/u)?.[0].trim() ?? book.editorial.description;
+  const introduction = book.slug === "al-shifa"
+    ? "كتاب في السيرة والشمائل النبوية ومكانة المصطفى صلى الله عليه وسلم، رتّبه القاضي عياض على أربعة أقسام."
+    : book.editorial.description.match(/^.*?[.؟!](?:\s|$)/u)?.[0].trim() ?? book.editorial.description;
   const hasOriginalText = content.chapters.some((chapter) => chapter.kind === "original" && chapter.sections.some((section) => section.passages.some((passage) => passage.originalText.trim())));
-  return <main id="main" className="container book-detail-page">
+  return <main id="main" className={`container book-detail-page${book.slug === "al-shifa" ? " book-detail-shifa" : ""}`}>
     <Link className="text-link detail-back" href="/library"><ArrowRight size={17} aria-hidden="true" /> العودة إلى المكتبة</Link>
     <div className="book-detail-intro">
       <div className="book-detail-copy">
@@ -45,25 +47,25 @@ export default async function BookDetailsPage({ params }: PageProps) {
       </div>
       <div className="book-detail-art"><BookCover book={book} featured /><span className="art-caption">غلاف تصوّري من تصميم المكتبة</span></div>
     </div>
-    <section className="book-detail-section book-information" aria-labelledby="bibliography-heading">
-      <div className="detail-section-heading"><h2 id="bibliography-heading">معلومات عن الكتاب</h2></div>
-      <dl className="bibliography-grid">
-        <div><dt>العنوان</dt><dd>{book.title}</dd></div>
-        <div><dt>المؤلف</dt><dd>{book.author}</dd></div>
-        <div><dt>التصنيف</dt><dd>{book.category}</dd></div>
-        <div><dt>الطبعة المعتمدة</dt><dd>{book.bibliography.edition ? <>{book.bibliography.edition.label}<small>المصدر: <SourceLabel source={book.bibliography.edition.source} /></small></> : "لم تُحدَّد طبعة معتمدة بعد."}</dd></div>
-        <div><dt>حالة النص</dt><dd>{hasOriginalText ? "نص أصلي متاح للقراءة" : "النص الأصلي غير متاح بعد"}</dd></div>
-        <div><dt>مصدر النص</dt><dd>{book.bibliography.textSource ? <SourceLabel source={book.bibliography.textSource} /> : "لم يُقدَّم مصدر معتمد بعد."}</dd></div>
-        <div className="bibliography-provenance"><dt>مصدر بيانات التعريف</dt><dd>{book.bibliography.metadataSource}</dd></div>
-      </dl>
-    </section>
+    <TableOfContents bookSlug={book.slug} chapters={content.chapters} />
     <div className="book-profile-body">
       <section className="book-detail-section book-about" aria-labelledby="about-heading">
         <div className="detail-section-heading"><h2 id="about-heading">عن الكتاب</h2></div>
         <p className="book-about-description">{book.editorial.description}</p>
         <p className="detail-editorial-label">تعريف تحريري من المكتبة، وليس مقتطفًا من الكتاب.</p>
       </section>
-    <TableOfContents bookSlug={book.slug} chapters={content.chapters} />
+      <section className="book-detail-section book-information" aria-labelledby="bibliography-heading">
+        <div className="detail-section-heading"><h2 id="bibliography-heading">معلومات عن الكتاب</h2></div>
+        <dl className="bibliography-grid">
+          <div><dt>العنوان</dt><dd>{book.title}</dd></div>
+          <div><dt>المؤلف</dt><dd>{book.author}</dd></div>
+          <div><dt>التصنيف</dt><dd>{book.category}</dd></div>
+          <div><dt>الطبعة المعتمدة</dt><dd>{book.bibliography.edition ? <>{book.bibliography.edition.label}<small>المصدر: <SourceLabel source={book.bibliography.edition.source} /></small></> : "لم تُحدَّد طبعة معتمدة بعد."}</dd></div>
+          <div><dt>حالة النص</dt><dd>{hasOriginalText ? "نص أصلي متاح للقراءة" : "النص الأصلي غير متاح بعد"}</dd></div>
+          <div><dt>مصدر النص</dt><dd>{book.bibliography.textSource ? <SourceLabel source={book.bibliography.textSource} /> : "لم يُقدَّم مصدر معتمد بعد."}</dd></div>
+          <div className="bibliography-provenance"><dt>مصدر بيانات التعريف</dt><dd>{book.bibliography.metadataSource}</dd></div>
+        </dl>
+      </section>
     </div>
   </main>;
 }

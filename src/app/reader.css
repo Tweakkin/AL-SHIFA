@@ -90,16 +90,51 @@ body:has(.reader-dialog[open]) { overflow: hidden; }
   .reader-shell[data-toc-open="true"] .reader-main { margin-inline-start: 270px; }
 }
 .reader-shell[data-position-ready="false"] .reader-main { visibility: hidden; }
-.reader-document { max-width: 730px; margin-inline: auto; font-family: var(--font-amiri), serif; font-size: var(--reader-font-size, 22px); }
-.reader-chapter-heading { text-align: center; margin-bottom: 32px; }
-.reader-chapter-heading > p { font-family: var(--font-plex), sans-serif; font-size: 11px; color: var(--reader-muted); }
-.reader-chapter-heading h1 { color: var(--reader-accent); font-size: 38px; line-height: 1.8; font-weight: 400; margin-top: 13px; }
+.reader-document { max-width: 700px; margin-inline: auto; font-family: var(--font-plex), sans-serif; font-size: var(--reader-font-size, 22px); text-align: right; direction: rtl; }
+html[data-reader-font="amiri"] .reader-document { font-family: var(--font-amiri), serif; }
+.reader-chapter-heading { text-align: center; margin-bottom: 36px; }
+.reader-chapter-heading > p.reader-chapter-indicator { font-family: var(--font-plex), sans-serif; font-size: 13px; color: var(--reader-muted); font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+.reader-division-eyebrow { display: inline-block; font-family: var(--font-plex), sans-serif; font-size: 13px; font-weight: 600; color: var(--reader-focus); background: var(--reader-control); border: 1px solid var(--reader-line); border-radius: 4px; padding: 4px 14px; margin-block: 6px 12px; }
+.reader-chapter-heading h1 { color: var(--reader-accent); font-family: var(--font-maghribi), var(--font-amiri), serif; font-size: 36px; line-height: 1.7; font-weight: 400; font-synthesis: none; margin-top: 8px; }
+.reader-document[data-chapter-id="al-shifa:chapter:muqaddima"] .reader-chapter-heading h1 { font-size: clamp(32px, 4vw, 40px); }
+.reader-title-ornament { display: flex; align-items: center; justify-content: center; gap: 14px; width: min(260px, 70%); margin: 16px auto 12px; color: var(--reader-focus); opacity: .8; pointer-events: none; }
+.reader-title-ornament > span:not(.ornament) { flex: 1; height: 1px; background: currentColor; }
+.reader-title-ornament > .ornament { color: inherit; }
+.reader-title-divider { position: relative; width: min(112px, 35%); margin: 20px auto 0; border-top: 1px solid var(--reader-focus); color: var(--reader-focus); opacity: .8; pointer-events: none; }
+.reader-title-divider::after { content: ""; position: absolute; top: -3px; left: 50%; width: 5px; height: 5px; background: var(--reader-bg); border: 1px solid currentColor; transform: translateX(-50%) rotate(45deg); }
 .reader-demo-notice { font-family: var(--font-plex), sans-serif; font-size: 12px; line-height: 2; color: var(--reader-muted); background: var(--reader-control); border-block: 1px solid var(--reader-line); padding: 14px 18px; margin-bottom: 40px; }
-.reader-section { margin-top: 39px; }
-.reader-section h2 { color: var(--reader-accent); font-size: 1.15em; font-weight: 700; line-height: 1.8; margin-bottom: 19px; }
-.reader-section > p { line-height: 2.15; margin-bottom: 1.15em; text-align: start; overflow-wrap: anywhere; scroll-margin-top: calc(var(--reader-toolbar-height) + 20px); }
+
+/* Structural headings hierarchy */
+.reader-section { margin-top: 36px; }
+.reader-section-division { margin-top: 56px; }
+.reader-section-bab { margin-top: 46px; }
+.reader-section-preface { margin-top: 38px; }
+.reader-section-fasl { margin-top: 32px; }
+
+.reader-heading { color: var(--reader-accent); font-family: inherit; text-align: right; }
+.reader-section[data-heading-suppressed="true"] { margin-top: 0; }
+.reader-font-family { max-width: 100%; flex-wrap: wrap; }
+.reader-font-family label { font-size: 12px; color: var(--reader-muted); margin-inline-end: 10px; }
+.reader-font-family select { max-width: 100%; min-height: 44px; padding: 8px 12px; font: inherit; font-size: 12px; color: var(--reader-ink); background: var(--reader-bg); border: 1px solid var(--reader-line); border-radius: 3px; }
+.reader-font-family select:focus-visible { outline: 2px solid var(--reader-focus); outline-offset: 3px; }
+.reader-heading-division { font-size: 30px; font-weight: 400; line-height: 1.8; text-align: center; margin-bottom: 28px; padding-block: 12px 20px; border-bottom: 1px solid var(--reader-focus); }
+.reader-heading-division > .reader-heading-label { display: block; font-family: var(--font-maghribi), var(--font-amiri), serif; font-synthesis: none; }
+.reader-heading-description { display: block; margin-top: 12px; font-family: inherit; font-size: .72em; font-weight: 500; line-height: 1.9; }
+.reader-heading-bab { font-size: 25px; font-weight: 700; line-height: 1.6; margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--reader-line); }
+.reader-heading-preface { font-size: 23px; font-weight: 700; line-height: 1.7; margin-bottom: 16px; }
+.reader-heading-fasl { font-size: 21px; font-weight: 700; line-height: 1.7; margin-bottom: 16px; }
+
+.reader-section > p { line-height: 1.9; margin-bottom: clamp(24px, 1.1em, 38px); text-align: right; overflow-wrap: anywhere; scroll-margin-top: calc(var(--reader-toolbar-height) + 20px); }
+.reader-intro-outline { margin-bottom: clamp(24px, 1.1em, 38px); scroll-margin-top: calc(var(--reader-toolbar-height) + 20px); }
+.reader-outline-entry { text-align: right; overflow-wrap: anywhere; }
+.reader-outline-division { margin-top: 36px; }
+.reader-outline-note { font-family: var(--font-plex), sans-serif; font-size: 13px; line-height: 1.8; color: var(--reader-muted); margin-bottom: 12px; }
+.reader-outline-label { color: var(--reader-accent); font-family: inherit; font-size: 1em; font-weight: 600; line-height: 1.9; margin-bottom: 10px; }
+.reader-outline-division > .reader-outline-note { text-align: center; }
+.reader-outline-division > .reader-outline-label { font-family: var(--font-maghribi), var(--font-amiri), serif; font-size: 1.3em; font-weight: 400; font-synthesis: none; text-align: center; padding-block: 12px; border-block: 1px solid var(--reader-line); margin-bottom: 18px; }
+.reader-outline-description { font-family: inherit; font-size: inherit; font-weight: 400; line-height: 1.9; margin: 0; white-space: pre-wrap; }
 .reader-chapter-end { text-align: center; color: var(--reader-muted); font-family: var(--font-plex), sans-serif; font-size: 11px; line-height: 2; margin-top: 43px; padding-block: 24px; border-top: 1px solid var(--reader-line); }
-.reader-chapter-navigation { width: min(730px, 100%); margin: 24px auto 0; display: flex; align-items: stretch; justify-content: space-between; gap: 24px; border-top: 1px solid var(--reader-line); border-bottom: 1px solid var(--reader-line); padding-block: 20px; }
+.reader-chapter-navigation { width: min(700px, 100%); margin: 24px auto 0; display: flex; align-items: stretch; justify-content: space-between; gap: 24px; border-top: 1px solid var(--reader-line); border-bottom: 1px solid var(--reader-line); padding-block: 20px; }
 .reader-chapter-navigation > a { min-height: 48px; display: inline-flex; align-items: center; gap: 15px; color: var(--reader-accent); font-size: 14px; line-height: 1.8; }
 .reader-chapter-navigation > a:last-child { text-align: end; margin-inline-start: auto; }
 .reader-chapter-navigation small { display: block; font-size: 10px; color: var(--reader-muted); margin-bottom: 5px; }
@@ -115,12 +150,19 @@ body:has(.reader-dialog[open]) { overflow: hidden; }
   .reader-toolbar-actions { gap: 6px; }.reader-progress { flex-direction: column; gap: 0; min-width: 44px; font-size: 12px; }.reader-progress > bdi { font-size: 14px; }.reader-progress > span { font-size: 11px; }
   .reader-settings { padding: 14px 16px; gap: 14px 22px; }
   .reader-setting-group > span { margin-inline-end: 5px; }.reader-theme-group > button { padding-inline: 12px; }
-  .reader-main { padding: 30px 22px 28px; }
+  .reader-main { padding: 30px 20px 28px; }
   .reader-shell[data-toc-open="true"] .reader-main { margin-inline-start: 0; }
-  .reader-document { font-size: var(--reader-font-size, 20px); }
-  .reader-chapter-heading { margin-bottom: 24px; }.reader-chapter-heading h1 { font-size: 31px; margin-top: 9px; }
+  .reader-document { font-size: var(--reader-font-size, 19px); }
+  .reader-chapter-heading { margin-bottom: 24px; }
+  .reader-chapter-heading h1 { font-size: 30px; margin-top: 6px; }
+  .reader-division-eyebrow { font-size: 12px; padding: 3px 10px; }
   .reader-demo-notice { font-size: 11px; padding: 12px 14px; margin-bottom: 31px; }
-  .reader-section { margin-top: 31px; }.reader-section h2 { margin-bottom: 15px; }
-  .reader-section > p { line-height: 2.15; }
+  .reader-section { margin-top: 28px; }
+  .reader-section-division { margin-top: 40px; }
+  .reader-section-bab { margin-top: 34px; }
+  .reader-heading-division { font-size: 26px; margin-bottom: 24px; }
+  .reader-heading-bab { font-size: 22px; margin-bottom: 16px; }
+  .reader-heading-preface { font-size: 20px; margin-bottom: 14px; }
+  .reader-heading-fasl { font-size: 19px; margin-bottom: 14px; }
   .reader-chapter-navigation { gap: 16px; }.reader-chapter-navigation > a { font-size: 12px; gap: 8px; }.reader-chapter-navigation > a svg { flex-shrink: 0; width: 17px; }
 }

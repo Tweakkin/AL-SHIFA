@@ -2,8 +2,9 @@ export const PREFERENCES_KEY = "al-shifa:reader:preferences:v1";
 export const MIN_FONT_SIZE = 18;
 export const MAX_FONT_SIZE = 34;
 export type ReadingTheme = "white" | "ivory" | "dark";
-export type ReaderPreferences = { theme: ReadingTheme; fontSize: number | null };
-export const DEFAULT_PREFERENCES: ReaderPreferences = { theme: "ivory", fontSize: null };
+export type ReadingFont = "plex" | "amiri";
+export type ReaderPreferences = { theme: ReadingTheme; fontSize: number | null; fontFamily: ReadingFont };
+export const DEFAULT_PREFERENCES: ReaderPreferences = { theme: "ivory", fontSize: null, fontFamily: "plex" };
 
 export function parsePreferences(raw: string | null): ReaderPreferences {
   try {
@@ -13,7 +14,8 @@ export function parsePreferences(raw: string | null): ReaderPreferences {
     const theme = ["white", "ivory", "dark"].includes(String(record.theme)) ? record.theme as ReadingTheme : "ivory";
     const fontSize = typeof record.fontSize === "number" && Number.isFinite(record.fontSize)
       ? Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, record.fontSize)) : null;
-    return { theme, fontSize };
+    const fontFamily = record.fontFamily === "amiri" ? "amiri" : "plex";
+    return { theme, fontSize, fontFamily };
   } catch { return { ...DEFAULT_PREFERENCES }; }
 }
 
@@ -30,7 +32,8 @@ export const siteThemeTokens = {
     "ink": "#252820",
     "muted": "#666b60",
     "line": "#e4e4da",
-    "page": "#fff",
+    "page": "#faf8f3",
+    "catalog-page": "var(--page)",
     "surface": "#fff",
     "button-bg": "#173f35",
     "button-ink": "#fff",
@@ -77,6 +80,7 @@ export const siteThemeTokens = {
     "muted": "#b7c0b4",
     "line": "#3b4c42",
     "page": "#17231f",
+    "catalog-page": "var(--ivory)",
     "surface": "#22352c",
     "button-bg": "#ddc798",
     "button-ink": "#17231f",
@@ -122,6 +126,7 @@ export function applyPreferences(preferences: ReaderPreferences) {
   const mode = globalMode(preferences.theme);
   root.dataset.theme = mode;
   root.dataset.readerTheme = preferences.theme;
+  root.dataset.readerFont = preferences.fontFamily;
   root.style.colorScheme = mode;
   for (const [key, value] of Object.entries(siteThemeTokens[mode])) root.style.setProperty(`--${key}`, value);
   if (preferences.fontSize !== null) root.style.setProperty("--reader-font-size", `${preferences.fontSize}px`);
@@ -140,7 +145,16 @@ export type ReadingProgress = {
 export type ChapterReference = { id: string; slug: string; title: string };
 export const progressKey = (bookSlug: string) => `al-shifa:reader:progress:${bookSlug}:v1`;
 export const clampRatio = (value: number) => Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
-export const arabicNumber = (value: number) => String(value).replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[Number(digit)]);
+export const formatNumber = (value: number | string) => String(value);
+export const arabicNumber = (value: number | string) => String(value);
+
+/** Only the opening metadata heading may duplicate the chapter heading. */
+export function isRepeatedChapterHeading(sectionTitle: string, chapterTitle: string, index: number): boolean {
+  if (index !== 0) return false;
+  const clean = (value: string) => value.trim().replace(/\s+/gu, " ");
+  const displayedChapter = chapterTitle.replace(/^القسم\s+[^:]+:\s*/u, "");
+  return clean(sectionTitle) === clean(chapterTitle) || clean(sectionTitle) === clean(displayedChapter);
+}
 
 export function parseProgress(raw: string | null, chapters: readonly ChapterReference[]): ReadingProgress | null {
   try {
@@ -189,7 +203,8 @@ export const readerPreferencesScript = `(function(){
     declarations+=';color-scheme:'+mode;
     if(typeof p.fontSize==='number'&&Number.isFinite(p.fontSize))declarations+=';--reader-font-size:'+Math.min(${MAX_FONT_SIZE},Math.max(${MIN_FONT_SIZE},p.fontSize))+'px';
     var sheet=new CSSStyleSheet();
-    sheet.replaceSync(':root{'+declarations+'}html:has(.reader-shell){color-scheme:'+(theme==='dark'?'dark':'light')+'}');
+    var readingFont=p.fontFamily==='amiri'?'var(--font-amiri), serif':'var(--font-plex), sans-serif';
+    sheet.replaceSync(':root{'+declarations+'}html:has(.reader-shell){color-scheme:'+(theme==='dark'?'dark':'light')+'}body .reader-document{font-family:'+readingFont+'}');
     document.adoptedStyleSheets=[...document.adoptedStyleSheets,sheet];
     window.__alShifaReaderBootstrap=sheet;
   }catch(e){}
