@@ -1,6 +1,7 @@
-import type { BookContent } from "../lib/content-types";
+import type { BookContent } from "../lib/content-types.ts";
+import { shifaContent } from "./al-shifa/index.ts";
 
-// These are navigation fixtures, not transcriptions or authentic chapter lists.
+// Navigation fixtures for books whose complete authentic texts have not yet been imported.
 // Keep originalText passages here, separate from editorial metadata in lib/books.ts.
 function demonstrationContent(bookSlug: string): BookContent {
   return {
@@ -13,7 +14,7 @@ function demonstrationContent(bookSlug: string): BookContent {
 }
 
 export const bookContents: readonly BookContent[] = [
-  demonstrationContent("al-shifa"),
+  shifaContent,
   demonstrationContent("dalail-al-khayrat"),
   demonstrationContent("al-durr-al-munazzam"),
   demonstrationContent("dhakhirat-al-muhtaj"),

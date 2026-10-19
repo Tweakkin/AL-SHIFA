@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
@@ -13,6 +13,19 @@ export function Header() {
   const { preferences, ready, toggleAppearance } = useTheme();
   const dark = preferences.theme === "dark";
   const themeLabel = dark ? "تفعيل المظهر الفاتح" : "تفعيل المظهر الداكن";
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
   return (
     <header className="site-header">
       <div className="container header-inner">

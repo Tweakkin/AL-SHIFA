@@ -80,7 +80,8 @@ test("scroll progress is bounded and tracks the article rather than unrelated pa
 
 test("demo paragraphs have stable unique IDs and stay outside original text records", () => {
   const ids = new Set();
-  for (const content of bookContents) {
+  const demoContents = bookContents.filter((content) => content.bookSlug !== "al-shifa");
+  for (const content of demoContents) {
     for (const chapter of content.chapters) {
       const sections = getReadingSections(chapter);
       assert.equal(sections.length, 3);
@@ -95,7 +96,29 @@ test("demo paragraphs have stable unique IDs and stay outside original text reco
       }
     }
   }
-  assert.equal(ids.size, 96);
+  assert.equal(ids.size, 72);
+});
+
+test("authentic chapters in al-shifa yield original reading sections and retain exact text", () => {
+  const shifa = bookContents.find((c) => c.bookSlug === "al-shifa");
+  assert.ok(shifa);
+  for (const chapter of shifa.chapters) {
+    const readingSections = getReadingSections(chapter);
+    assert.equal(readingSections.length, chapter.sections.length);
+    for (let i = 0; i < readingSections.length; i++) {
+      const rSec = readingSections[i];
+      const origSec = chapter.sections[i];
+      assert.equal(rSec.id, origSec.id);
+      assert.equal(rSec.title, origSec.title);
+      assert.equal(rSec.passages.length, origSec.passages.length);
+      for (let j = 0; j < rSec.passages.length; j++) {
+        assert.equal(rSec.passages[j].id, origSec.passages[j].id);
+        assert.equal(rSec.passages[j].kind, "original");
+        assert.equal(rSec.passages[j].text, origSec.passages[j].originalText);
+        assert.deepEqual(rSec.passages[j].source, origSec.passages[j].source);
+      }
+    }
+  }
 });
 
 test("authentic structured passages retain their original IDs and text when adapted for rendering", () => {

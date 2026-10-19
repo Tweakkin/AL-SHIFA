@@ -3,7 +3,7 @@ import { ArrowUpLeft } from "lucide-react";
 import type { Book } from "@/lib/books";
 import { BookCover } from "./book-cover";
 
-export function BookCard({ book, index, showCategory = false }: { book: Book; index: number; showCategory?: boolean }) {
+export function BookCard({ book, index: _index, showCategory = false }: { book: Book; index?: number; showCategory?: boolean }) {
   return <article className="book-card">
     <Link className={`book-stage stage-${book.color}`} href={`/books/${book.slug}`} aria-label={`تعرّف على ${book.title} — ${book.author}`}>
       <BookCover book={book} />

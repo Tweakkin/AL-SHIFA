@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Amiri, IBM_Plex_Sans_Arabic } from "next/font/google";
 import localFont from "next/font/local";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -8,8 +7,22 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { readerPreferencesScript } from "@/lib/reader-state";
 import "./globals.css";
 
-const plex = IBM_Plex_Sans_Arabic({ subsets: ["arabic", "latin"], weight: ["400", "500", "600", "700"], variable: "--font-plex", display: "swap" });
-const amiri = Amiri({ subsets: ["arabic", "latin"], weight: ["400", "700"], variable: "--font-amiri", display: "swap" });
+const plex = localFont({
+  src: [
+    { path: "./fonts/ibmplexsansarabic/IBMPlexSansArabic-Regular.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/ibmplexsansarabic/IBMPlexSansArabic-Medium.ttf", weight: "500", style: "normal" },
+    { path: "./fonts/ibmplexsansarabic/IBMPlexSansArabic-SemiBold.ttf", weight: "600", style: "normal" },
+    { path: "./fonts/ibmplexsansarabic/IBMPlexSansArabic-Bold.ttf", weight: "700", style: "normal" },
+  ],
+  variable: "--font-plex", display: "swap", adjustFontFallback: "Arial",
+});
+const amiri = localFont({
+  src: [
+    { path: "./fonts/amiri/Amiri-Regular.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/amiri/Amiri-Bold.ttf", weight: "700", style: "normal" },
+  ],
+  variable: "--font-amiri", display: "swap", adjustFontFallback: "Times New Roman",
+});
 const maghribi = localFont({ src: "./fonts/bouazzi-maghribi/BouazziMaghribi-Regular.woff2", weight: "400", style: "normal", variable: "--font-maghribi", display: "swap", adjustFontFallback: false });
 
 export const metadata: Metadata = {
