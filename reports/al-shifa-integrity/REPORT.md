@@ -1,5 +1,10 @@
 # Al-Shifa text-integrity audit
 
+> Repository maintenance: generated inventories mentioned below are no longer committed. Source snapshots, correction logs, reference evidence, summaries and the post-correction regression fixture remain. The scanners regenerate omitted findings/inventories; historical review outputs and screenshots have verified copies outside the repository. Screenshot examples remain identified by passage IDs below.
+
+
+**Current punctuation follow-up (2026-10-20):** see [PUNCTUATION-REPORT.md](PUNCTUATION-REPORT.md) for source-supported display repairs, the supplied screenshot checks and the latest punctuation review queue. The report below and its citation-only log preserve the earlier audit state; stored Arabic text remains unchanged.
+
 Date: 2026-10-20. Scope: the current imported Al-Shifa dataset only.
 
 **Result:** every imported passage was compared programmatically with its recorded digital input after reproducing the documented import transformations. This establishes import fidelity to that input, not accuracy against a printed or manuscript witness. This audit does **not** certify an unabridged, fully verified scholarly edition.

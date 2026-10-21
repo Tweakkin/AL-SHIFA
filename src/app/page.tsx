@@ -16,7 +16,7 @@ export default function HomePage() {
         <h1 id="hero-title" className="font-maghribi">الشفا</h1>
         <HeroTitleMark />
         <h2>المكتبة الرقمية للسيرة النبوية</h2>
-        <p className="hero-description">تراثٌ يُقرأ، وأثرٌ يبقى — في تجربة قراءة رقمية معاصرة</p>
+        <p className="hero-description">تراثٌ يُقرأ، وأثرٌ يبقى في تجربة قراءة رقمية معاصرة</p>
         <form action="/library" method="get" className="search-form" role="search" aria-label="البحث في المكتبة">
           <Search className="search-icon" size={21} aria-hidden="true" />
           <label htmlFor="library-search" className="sr-only">عنوان الكتاب أو اسم المؤلف</label>

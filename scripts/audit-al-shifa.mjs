@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { shifaContent } from '../src/content/al-shifa/index.ts';
 
-export function runAudit({ content = shifaContent, write = true } = {}) {
+export function runAudit({ content = shifaContent, write = true, includeSourceMap = false } = {}) {
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = resolve(root, 'reports/al-shifa-integrity');
 const read = path => readFileSync(resolve(root, path), 'utf8');
@@ -265,7 +265,7 @@ const summary = {
     'Heuristics cannot reliably detect every joined Arabic word, lost sentence, malformed diacritic or source-level omission.',
     'Per-passage quote imbalance can span passages; counts are review candidates rather than proven errors.'],
 };
-if (!write) return { summary, findings };
+if (!write) return { summary, findings, ...(includeSourceMap ? { sourceMap } : {}) };
 mkdirSync(output, { recursive: true });
 writeFileSync(resolve(output, 'findings.json'), JSON.stringify(findings, null, 2) + '\n');
 writeFileSync(resolve(output, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');

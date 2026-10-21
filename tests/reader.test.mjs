@@ -7,6 +7,54 @@ import { IntroOutlinePassage, introOutlineEntries } from "../src/components/read
 import { bookContents } from "../src/content/books.ts";
 import { getReadingSections } from "../src/content/reader-demonstration.ts";
 import { readerHeading } from "../src/lib/reader-headings.ts";
+import { editorialChapterTitle } from "../src/lib/editorial-text.ts";
+import { NavigationTitle } from "../src/components/reader/navigation-title.ts";
+import { readerDisplayText } from "../src/lib/reader-display-text.ts";
+
+test("reader navigation separates structural labels without changing source titles or subject punctuation", () => {
+  const content = bookContents.find(book => book.bookSlug === "al-shifa");
+  const before = JSON.stringify(content);
+  for (const chapter of content.chapters) {
+    const html = renderToStaticMarkup(createElement(NavigationTitle, { title: chapter.title }));
+    if (chapter.slug === "muqaddima") {
+      assert(!html.includes('reader-navigation-metadata'));
+      assert(html.includes('>مقدمة المؤلف</span>'));
+    } else {
+      assert.match(html, /reader-navigation-metadata">القسم \S+ · الباب \S+<\/span>/u);
+      assert(!html.includes('—'));
+      assert(html.includes(`reader-navigation-subject">${chapter.title.slice(chapter.title.indexOf(" — ") + 3)}</span>`));
+    }
+  }
+  for (const separator of [":", "—", "–", "--"]) {
+    const html = renderToStaticMarkup(createElement(NavigationTitle, { title: `القسم الأول: الباب الأول ${separator} موضوع: تفصيل — نص محفوظ` }));
+    assert(html.includes('>القسم الأول · الباب الأول</span>'));
+    assert(html.includes('>موضوع: تفصيل — نص محفوظ</span>'));
+  }
+  const chapterOnly = renderToStaticMarkup(createElement(NavigationTitle, { title: "الباب الثاني: موضوع الفصل" }));
+  assert(chapterOnly.includes('reader-navigation-metadata">الباب الثاني</span>'));
+  assert(chapterOnly.includes('reader-navigation-subject">موضوع الفصل</span>'));
+  for (const title of ["مقدمة المؤلف", "عنوان مختلف: وصف", "الباب الأول", "الفصل التجريبي الأول"]) {
+    const html = renderToStaticMarkup(createElement(NavigationTitle, { title }));
+    assert(!html.includes('reader-navigation-metadata'));
+    assert(html.includes(`>${title}</span>`));
+  }
+  assert.equal(JSON.stringify(content), before);
+});
+
+test("editorial chapter separators are formatted without rewriting source metadata or other dashes", () => {
+  for (const separator of ["—", "–", "--"]) {
+    assert.equal(editorialChapterTitle(`القسم الأول: الباب الأول ${separator} في الثناء`), "القسم الأول: الباب الأول: في الثناء");
+    assert.equal(editorialChapterTitle(`الباب الأول ${separator} في الثناء`), "الباب الأول: في الثناء");
+  }
+  for (const text of ["مقدمة المؤلف", "قال المؤلف — نص محفوظ", "Al-Shifa", "--reader-bg", "الباب الأول: في الثناء"]) {
+    assert.equal(editorialChapterTitle(text), text);
+  }
+  const content = bookContents.find(book => book.bookSlug === "al-shifa");
+  const before = JSON.stringify(content);
+  assert.equal(content.chapters.filter(chapter => editorialChapterTitle(chapter.title) !== chapter.title).length, 13);
+  for (const chapter of content.chapters) assert(!/[—–]|--/u.test(editorialChapterTitle(chapter.title)));
+  assert.equal(JSON.stringify(content), before);
+});
 import { parsePreferences, parseProgress, progressKey, shouldRestoreProgress, readingRatio, readerPreferencesScript, globalMode, themeFromGlobalMode, siteThemeTokens, isRepeatedChapterHeading } from "../src/lib/reader-state.ts";
 
 test("preferences round-trip all themes and clamp invalid sizes without trusting corrupt data", () => {
@@ -84,7 +132,7 @@ test("reviewed introductory outline renders separate labels and descriptions wit
     formatted++;
     assert.equal(entries.map(entry => entry.sourceLabel + entry.description).join(''), passage.text);
     assert.ok(html.includes('aria-label="من خطة المؤلف للكتاب في المقدمة"'));
-    for (const entry of entries) {
+    for (const entry of introOutlineEntries(chapter.id, { ...passage, text: readerDisplayText(passage) })) {
       assert.ok(html.includes(`<h3 class="reader-outline-label">${entry.label}</h3>`));
       assert.ok(html.includes(`<p class="reader-outline-description" dir="auto">${entry.description}</p>`));
       assert.doesNotMatch(entry.label, /[()]/);

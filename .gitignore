@@ -6,3 +6,37 @@ out/
 !.env.example
 .DS_Store
 qa/
+backups/
+__pycache__/
+*.py[cod]
+*.log
+scratch/all_headings.txt
+
+# Local captures and temporary output; required website assets remain tracked.
+screenshots/
+test-results/
+playwright-report/
+coverage/
+**/*screenshot*.png
+**/*screenshot*.jpg
+**/*screenshot*.jpeg
+**/*screenshot*.webp
+**/*capture*.png
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.cache/
+.turbo/
+scratch/ocr*/
+scratch/transcription*/
+
+# Reproducible inventories, not source snapshots or correction evidence.
+reports/al-shifa-reader-quotes/
+reports/al-shifa-integrity/findings.json
+reports/al-shifa-integrity/passage-baseline.json
+reports/al-shifa-integrity/punctuation-findings.json
+reports/al-shifa-integrity/punctuation-occurrences.json
+reports/al-shifa-integrity/punctuation-segmentation-review.json
+reports/al-shifa-integrity/reader-quotation-styling.json

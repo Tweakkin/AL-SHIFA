@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-20",
+  "scope": {
+    "divisions": 4,
+    "chapters": 14,
+    "sections": 170,
+    "passages": 4831,
+    "rawLines": 13047
+  },
+  "originalDatasetSha256": "3fe8a36200f31d5671aef4d4bf7f3f633102f56bc226d20809098dcba416285b",
+  "rawSourceSha256": "aee86770fe07de72884b5399de60d43859001146ddecd38eb49a2b0bb448f7ac",
+  "classifications": {
+    "corrected-display": 1717,
+    "unresolved": 2768,
+    "legitimate-source-feature": 30
+  },
+  "categories": {
+    "quotation-boundary-review": {
+      "detected": 1687,
+      "corrected": 4,
+      "legitimate": 0,
+      "unresolved": 1683
+    },
+    "unmatched-delimiter": {
+      "detected": 7,
+      "corrected": 0,
+      "legitimate": 0,
+      "unresolved": 7
+    },
+    "trailing-colon-or-delimiter": {
+      "detected": 366,
+      "corrected": 0,
+      "legitimate": 6,
+      "unresolved": 360
+    },
+    "spaced-period-run": {
+      "detected": 1710,
+      "corrected": 1710,
+      "legitimate": 0,
+      "unresolved": 0
+    },
+    "repeated-nonperiod-punctuation": {
+      "detected": 100,
+      "corrected": 0,
+      "legitimate": 0,
+      "unresolved": 100
+    },
+    "punctuation-space": {
+      "detected": 105,
+      "corrected": 2,
+      "legitimate": 0,
+      "unresolved": 103
+    },
+    "dash-touching-word": {
+      "detected": 206,
+      "corrected": 1,
+      "legitimate": 0,
+      "unresolved": 205
+    },
+    "mixed-colon-punctuation": {
+      "detected": 4,
+      "corrected": 0,
+      "legitimate": 0,
+      "unresolved": 4
+    },
+    "leading-punctuation": {
+      "detected": 310,
+      "corrected": 0,
+      "legitimate": 4,
+      "unresolved": 306
+    },
+    "source-separator": {
+      "detected": 14,
+      "corrected": 0,
+      "legitimate": 14,
+      "unresolved": 0
+    },
+    "verified-parenthetical-continuation": {
+      "detected": 6,
+      "corrected": 0,
+      "legitimate": 6,
+      "unresolved": 0
+    }
+  },
+  "totalFindingRecords": 4515,
+  "distinctFlaggedPassages": 3278,
+  "correctedPassages": 1714,
+  "periodSpacingPassages": 1710,
+  "damagedMarkerRepairs": 4,
+  "newDamagedMarkerRepairs": 3,
+  "presentationGroupingRepairs": 1,
+  "contentCorrections": 0,
+  "sourceReplay": {
+    "replayMatches": true,
+    "titleMatches": true,
+    "idsOrdered": true,
+    "citationsMatchingFirstSourcePage": 4828,
+    "citationsDifferingFromFirstSourcePage": 0
+  },
+  "remainingFindingRecords": 2798,
+  "remainingUnresolvedRecords": 2768,
+  "beforeDelimiters": {
+    "guillemets": {
+      "opening": 2453,
+      "closing": 2399,
+      "occurrences": 4852,
+      "passagesWithMarks": 1934,
+      "suspiciousOccurrences": 2534
+    },
+    "chapterOpen": 120,
+    "chapterClose": 66
+  },
+  "afterDelimiters": {
+    "guillemets": {
+      "opening": 2453,
+      "closing": 2395,
+      "occurrences": 4848,
+      "passagesWithMarks": 1930,
+      "suspiciousOccurrences": 2530
+    },
+    "chapterOpen": 120,
+    "chapterClose": 62
+  },
+  "segmentation": {
+    "mergedSourceParagraphStarts": 1135,
+    "reviewPassages": 864,
+    "policy": "The importer joins # paragraphs unless previous text ends in . : ؟ ! ؛; ~~ is always joined. This is not a diplomatic transcription.",
+    "separatelyInventoriedNotAddedToPunctuationCounts": true
+  },
+  "oldAudit": {
+    "findingRecords": 567,
+    "unresolved": 531,
+    "notAddedToNewCounts": true
+  }
+}

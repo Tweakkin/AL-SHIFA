@@ -47,7 +47,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
       <button className="button-primary" type="submit">بحث وتصفية <ArrowLeft size={17} aria-hidden="true" /></button>
     </form>
     <div className="catalog-results-heading">
-      <p role="status">عرض <strong>{results.length}</strong> من <strong>{books.length}</strong> كتب{query && <> — نتائج البحث عن «<bdi>{query}</bdi>»</>}</p>
+      <p role="status">عرض <strong>{results.length}</strong> من <strong>{books.length}</strong> كتب{query && <>، نتائج البحث عن «<bdi>{query}</bdi>»</>}</p>
       {resetHref && <Link className="text-link catalog-reset" href={resetHref}><RotateCcw size={15} aria-hidden="true" /> مسح التصفية</Link>}
     </div>
     {results.length > 0 ? <div className="book-grid">{results.map((book) => <BookCard key={book.slug} book={book} index={books.indexOf(book)} showCategory />)}</div> : <section className="catalog-empty" aria-labelledby="empty-title">

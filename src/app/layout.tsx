@@ -26,7 +26,7 @@ const amiri = localFont({
 const maghribi = localFont({ src: "./fonts/bouazzi-maghribi/BouazziMaghribi-Regular.woff2", weight: "400", style: "normal", variable: "--font-maghribi", display: "swap", adjustFontFallback: false });
 
 export const metadata: Metadata = {
-  title: { default: "الشفا — المكتبة الرقمية للسيرة النبوية", template: "%s | الشفا" },
+  title: { default: "الشفا: المكتبة الرقمية للسيرة النبوية", template: "%s | الشفا" },
   description: "من ذخائر التراث المغربي إلى تجربة قراءة رقمية معاصرة. مشروع مكتبة عربية للسيرة النبوية.",
 };
 

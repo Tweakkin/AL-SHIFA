@@ -1,16 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, List, Minus, Plus, Settings2, X } from "lucide-react";
 import type { ReadingSection } from "@/content/reader-demonstration";
 import { capturePosition, restorePosition } from "@/lib/reader-position";
 import { readerHeading } from "@/lib/reader-headings";
-import { IntroOutlinePassage } from "./intro-outline";
+import { editorialChapterTitle } from "@/lib/editorial-text";
+import { PassageList } from "./passage-list";
+import { NavigationTitle } from "./navigation-title";
+import { ReaderContents } from "./reader-contents";
+import { ParagraphFocus } from "./paragraph-focus";
+import { quotationPlan } from "./quotation-text";
+import { readerDisplayText } from "@/lib/reader-display-text";
 import { Ornament } from "@/components/ornament";
 import { useTheme } from "@/components/theme-provider";
 import {
-  arabicNumber, MAX_FONT_SIZE, MIN_FONT_SIZE, parseProgress,
+  MAX_FONT_SIZE, MIN_FONT_SIZE, parseProgress,
   progressKey, shouldRestoreProgress, isRepeatedChapterHeading,
   type ChapterReference, type ReaderPreferences, type ReadingTheme, type ReadingFont,
 } from "@/lib/reader-state";
@@ -43,6 +49,8 @@ export function BookReader({ bookSlug, bookTitle, chapter, chapters, sections }:
   const next = chapters[currentIndex + 1];
   const fontSize = preferences.fontSize ?? (mobile ? 19 : 22);
   const percentComplete = Math.round(ratio * 100);
+  const displayPassages = useMemo(() => sections.flatMap(section => section.passages.map(passage => ({ id: passage.id, text: readerDisplayText(passage) }))), [sections]);
+  const quotePlan = useMemo(() => quotationPlan(displayPassages), [displayPassages]);
 
   useLayoutEffect(() => {
     const media = window.matchMedia("(max-width: 760px)");
@@ -145,20 +153,15 @@ export function BookReader({ bookSlug, bookTitle, chapter, chapters, sections }:
   }, []);
 
   useEffect(() => {
-    if (dialogRef.current?.open) dialogRef.current.close();
-    setTocOpen(false);
-  }, [mobile]);
-
-  useEffect(() => {
     const close = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (document.getElementById("reader-paragraph-focus")?.hasAttribute("open")) return;
       if (dialogRef.current?.open) return; // Native modal Escape handling owns focus.
       if (settingsOpen) { setSettingsOpen(false); settingsButtonRef.current?.focus(); return; }
-      if (!mobile && tocOpen) { setTocOpen(false); contentsButtonRef.current?.focus(); }
     };
     window.addEventListener("keydown", close);
     return () => window.removeEventListener("keydown", close);
-  }, [settingsOpen, mobile, tocOpen]);
+  }, [settingsOpen]);
 
   function updatePreferences(nextPreferences: ReaderPreferences) {
     const position = articleRef.current ? capturePosition(articleRef.current, toolbarRef.current) : null;
@@ -174,51 +177,68 @@ export function BookReader({ bookSlug, bookTitle, chapter, chapters, sections }:
   function closeContents() {
     if (dialogRef.current?.open) dialogRef.current.close();
     setTocOpen(false);
-    if (!mobile) contentsButtonRef.current?.focus();
   }
   function navigateChapter() { flushRef.current(); closeContents(); }
-  function toggleContents() {
-    if (mobile) { if (dialogRef.current?.open) closeContents(); else { dialogRef.current?.showModal(); setTocOpen(true); } }
-    else setTocOpen((open) => !open);
+  function scrollToChapterStart() {
+    const heading = articleRef.current?.querySelector<HTMLElement>("#reader-chapter-title");
+    if (!heading) return;
+    window.scrollTo({
+      top: Math.max(0, window.scrollY + heading.getBoundingClientRect().top - (toolbarRef.current?.getBoundingClientRect().height ?? 0) - 24),
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    });
   }
-  function chapterLinks() {
-    return <nav aria-label="فصول الكتاب"><ol>{chapters.map((item, index) => <li key={item.id}><Link href={`/read/${bookSlug}/${item.slug}?start=1`} scroll={false} onClick={navigateChapter} aria-current={item.id === chapter.id ? "page" : undefined}>
-      <span className="reader-toc-index" aria-hidden="true">{index + 1}</span><span>{item.title}</span>
-    </Link></li>)}</ol></nav>;
+  function toggleContents() {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (dialog.open) { closeContents(); return; }
+    dialog.showModal();
+    setTocOpen(true);
+    const list = dialog.querySelector<HTMLElement>(".reader-toc-scroll");
+    const current = dialog.querySelector<HTMLElement>('[aria-current="page"]');
+    if (list && current) {
+      const bounds = list.getBoundingClientRect();
+      const item = current.getBoundingClientRect();
+      if (item.top < bounds.top || item.bottom > bounds.bottom) {
+        list.scrollTop += item.top - bounds.top - list.clientHeight * .3;
+      }
+    }
   }
 
   const divisionMatch = chapter.title.match(/^(القسم\s+[^:]+):\s*(.*)$/);
   const divisionName = divisionMatch ? divisionMatch[1] : null;
-  const mainChapterTitle = divisionMatch ? divisionMatch[2] : chapter.title;
+  const mainChapterTitle = editorialChapterTitle(divisionMatch ? divisionMatch[2] : chapter.title);
 
-  return <main id="main" tabIndex={-1} ref={shellRef} className="reader-shell" data-ready={ready} data-position-ready={positionReady} data-toc-open={tocOpen && !mobile}>
+  return <main id="main" tabIndex={-1} ref={shellRef} className="reader-shell" data-ready={ready} data-position-ready={positionReady}>
     <header className="reader-topbar" ref={toolbarRef}>
       <div className="reader-toolbar">
         <div className="reader-toolbar-start">
           <Link className="reader-navigation-button" href={`/books/${bookSlug}`} onClick={() => flushRef.current()} aria-label="العودة للكتاب" title="العودة للكتاب"><ArrowRight size={19} aria-hidden="true" /><span>العودة للكتاب</span></Link>
-          <button type="button" ref={contentsButtonRef} className="reader-navigation-button" aria-label="فهرس الكتاب" title="فهرس الكتاب" aria-expanded={tocOpen} aria-controls={mobile ? "reader-mobile-contents" : "reader-desktop-contents"} aria-haspopup={mobile ? "dialog" : undefined} disabled={!ready} onClick={toggleContents}><List size={19} aria-hidden="true" /><span>فهرس الكتاب</span></button>
+          <button type="button" ref={contentsButtonRef} className="reader-navigation-button" aria-label="فهرس الكتاب" title="فهرس الكتاب" aria-expanded={tocOpen} aria-controls="reader-book-contents" aria-haspopup="dialog" disabled={!ready} onClick={toggleContents}><List size={19} aria-hidden="true" /><span>فهرس الكتاب</span></button>
         </div>
-        <div className="reader-toolbar-title"><span>{bookTitle}</span><small>{chapter.title} · {currentIndex + 1} / {chapters.length}</small></div>
+        <div className="reader-toolbar-title"><span>{bookTitle}</span><small>{editorialChapterTitle(chapter.title)} · {currentIndex + 1} / {chapters.length}</small></div>
         <div className="reader-toolbar-actions">
           <button type="button" ref={settingsButtonRef} className="reader-icon-button" aria-label="إعدادات القراءة" aria-expanded={settingsOpen} aria-controls="reader-settings" disabled={!ready} onClick={() => setSettingsOpen(!settingsOpen)}><Settings2 size={20} aria-hidden="true" /></button>
-          <span className="reader-progress" role="progressbar" aria-label="التقدم في الفصل الحالي" title="نسبة اكتمال الفصل الحالي" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentComplete} aria-valuetext={`${percentComplete}٪ مكتمل من الفصل الحالي`}><bdi>{percentComplete}٪</bdi><span>مكتمل</span></span>
+          <span className="reader-progress" role="progressbar" aria-label="التقدم في الفصل الحالي" title={`${percentComplete}% مكتمل من الفصل الحالي`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentComplete} aria-valuetext={`${percentComplete}% مكتمل من الفصل الحالي`}>
+            <svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><circle className="reader-progress-track" cx="22" cy="22" r="19" /><circle className="reader-progress-fill" cx="22" cy="22" r="19" pathLength="100" strokeDasharray={`${percentComplete} 100`} /></svg>
+            <bdi dir="ltr">{percentComplete}<span>%</span></bdi>
+          </span>
         </div>
       </div>
       <section id="reader-settings" className="reader-settings" aria-label="تخصيص القراءة" hidden={!settingsOpen}>
-        <div className="reader-setting-group reader-font-family"><label htmlFor="reader-font-family">خط القراءة</label><select id="reader-font-family" value={preferences.fontFamily} disabled={!ready} onChange={(event) => updatePreferences({ ...preferences, fontFamily: event.target.value as ReadingFont })}><option value="plex">خط حديث — IBM Plex Sans Arabic</option><option value="amiri">خط تراثي — Amiri</option></select></div>
-        <div className="reader-setting-group" role="group" aria-label="حجم خط القراءة"><span>حجم الخط</span><button type="button" aria-label="تصغير الخط" disabled={!ready || fontSize <= MIN_FONT_SIZE} onClick={() => updatePreferences({ ...preferences, fontSize: Math.max(MIN_FONT_SIZE, fontSize - 2) })}><Minus size={18} aria-hidden="true" /></button><output className="reader-font-output" aria-label="حجم الخط بالبكسل">{ready ? fontSize : "—"}</output><button type="button" aria-label="تكبير الخط" disabled={!ready || fontSize >= MAX_FONT_SIZE} onClick={() => updatePreferences({ ...preferences, fontSize: Math.min(MAX_FONT_SIZE, fontSize + 2) })}><Plus size={18} aria-hidden="true" /></button></div>
+        <div className="reader-setting-group reader-font-family"><label htmlFor="reader-font-family">خط القراءة</label><select id="reader-font-family" value={preferences.fontFamily} disabled={!ready} onChange={(event) => updatePreferences({ ...preferences, fontFamily: event.target.value as ReadingFont })}><option value="plex">خط حديث (IBM Plex Sans Arabic)</option><option value="amiri">خط تراثي (Amiri)</option></select></div>
+        <div className="reader-setting-group" role="group" aria-label="حجم خط القراءة"><span>حجم الخط</span><button type="button" aria-label="تصغير الخط" disabled={!ready || fontSize <= MIN_FONT_SIZE} onClick={() => updatePreferences({ ...preferences, fontSize: Math.max(MIN_FONT_SIZE, fontSize - 2) })}><Minus size={18} aria-hidden="true" /></button><output className="reader-font-output" aria-label="حجم الخط بالبكسل" aria-busy={!ready}>{ready ? fontSize : ""}</output><button type="button" aria-label="تكبير الخط" disabled={!ready || fontSize >= MAX_FONT_SIZE} onClick={() => updatePreferences({ ...preferences, fontSize: Math.min(MAX_FONT_SIZE, fontSize + 2) })}><Plus size={18} aria-hidden="true" /></button></div>
         <div className="reader-setting-group reader-theme-group" role="group" aria-label="مظهر القراءة">{([ ["white", "أبيض"], ["ivory", "عاجي"], ["dark", "داكن"] ] as const).map(([theme, label]) => <button type="button" key={theme} aria-label={`المظهر ${label}`} aria-pressed={preferences.theme === theme} onClick={() => updatePreferences({ ...preferences, theme: theme as ReadingTheme })}><span className={`reader-theme-dot reader-theme-${theme}`} aria-hidden="true" />{label}</button>)}</div>
         {(!canPersist || !preferencesCanPersist) && <p className="reader-storage-note" role="status">الحفظ المحلي غير متاح في هذا المتصفح؛ قد لا تبقى إعداداتك وموضعك بعد المغادرة.</p>}
       </section>
     </header>
 
-    <aside id="reader-desktop-contents" className="reader-contents" hidden={!tocOpen || mobile} aria-labelledby="reader-contents-title">
-      <div className="reader-contents-heading"><h2 id="reader-contents-title">فهرس الكتاب</h2><button className="reader-icon-button" type="button" aria-label="إغلاق الفهرس" onClick={closeContents}><X size={19} aria-hidden="true" /></button></div>
-      <p className="reader-contents-book">{bookTitle}</p>{chapter.kind === "demonstration" && <p className="reader-contents-note">فهرس تجريبي للاختبار</p>}{chapterLinks()}
-    </aside>
-    <dialog id="reader-mobile-contents" className="reader-dialog" ref={dialogRef} aria-labelledby="reader-dialog-title" onCancel={() => setTocOpen(false)} onClose={() => setTocOpen(false)}>
-      <div className="reader-contents-heading"><h2 id="reader-dialog-title">فهرس الكتاب</h2><button className="reader-icon-button" autoFocus type="button" aria-label="إغلاق الفهرس" onClick={closeContents}><X size={20} aria-hidden="true" /></button></div>
-      <p className="reader-contents-book">{bookTitle}</p>{chapter.kind === "demonstration" && <p className="reader-contents-note">فهرس تجريبي للاختبار</p>}{chapterLinks()}
+    <dialog id="reader-book-contents" className="reader-dialog" ref={dialogRef} aria-labelledby="reader-dialog-title" onClose={() => { setTocOpen(false); contentsButtonRef.current?.focus({ preventScroll: true }); }} onClick={event => {
+      if (event.target !== event.currentTarget) return;
+      const bounds = event.currentTarget.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) closeContents();
+    }}>
+      <div className="reader-toc-header"><div><h2 id="reader-dialog-title">فهرس الكتاب</h2><p>{bookTitle}</p>{chapter.kind === "demonstration" && <small>فهرس تجريبي للاختبار</small>}</div><button className="reader-icon-button" autoFocus type="button" aria-label="إغلاق الفهرس" onClick={closeContents}><X size={20} aria-hidden="true" /></button></div>
+      <ReaderContents chapters={chapters} bookSlug={bookSlug} currentId={chapter.id} onNavigate={navigateChapter} />
     </dialog>
 
     <div className="reader-main">
@@ -241,18 +261,24 @@ export function BookReader({ bookSlug, bookTitle, chapter, chapters, sections }:
                 <span className="reader-heading-label">{heading.label}</span>
                 {heading.description && <> <span className="reader-heading-description">{heading.description}</span></>}
               </h2>}
-              {section.passages.map((passage) => <IntroOutlinePassage key={passage.id} chapterId={chapter.id} passage={passage} />)}
+              <PassageList chapterId={chapter.id} passages={section.passages} safeQuotes={quotePlan.safe} />
             </section>
           );
         })}
         {!sections.length && <p className="reader-demo-notice">لم يتوفر نص لهذا الفصل بعد.</p>}
-        <p className="reader-chapter-end">{chapter.kind === "demonstration" ? "نهاية الفصل التجريبي" : "نهاية الفصل"}</p>
       </article>
-      <nav className="reader-chapter-navigation" aria-label="التنقل بين الفصول">
-        {previous ? <Link href={`/read/${bookSlug}/${previous.slug}?start=1`} onClick={navigateChapter} scroll={false}><ArrowRight size={19} aria-hidden="true" /><span><small>الفصل السابق</small>{previous.title}</span></Link> : <span className="reader-navigation-disabled">بداية الكتاب</span>}
-        {next ? <Link href={`/read/${bookSlug}/${next.slug}?start=1`} onClick={navigateChapter} scroll={false}><span><small>الفصل التالي</small>{next.title}</span><ArrowLeft size={19} aria-hidden="true" /></Link> : <span className="reader-navigation-disabled">نهاية الفصول المتاحة</span>}
-      </nav>
-      <Link className="reader-bottom-back" href={`/books/${bookSlug}`} onClick={() => flushRef.current()}>العودة إلى صفحة الكتاب</Link>
+      <ParagraphFocus articleRef={articleRef} passages={displayPassages} safeQuotes={quotePlan.safe} fontSize={fontSize} />
+      <section className="reader-ending" aria-labelledby="reader-ending-title">
+        <h2 id="reader-ending-title" className="reader-ending-title">{next ? (chapter.kind === "demonstration" ? "نهاية الفصل التجريبي" : "نهاية الفصل") : "نهاية الكتاب"}</h2>
+        <nav className="reader-ending-actions" aria-label="متابعة القراءة">
+          {previous
+            ? <Link className="reader-chapter-card" rel="prev" href={`/read/${bookSlug}/${previous.slug}?start=1`} onClick={navigateChapter} scroll={false}><ArrowRight size={20} aria-hidden="true" /><span><small>الفصل السابق</small><NavigationTitle title={previous.title} /></span></Link>
+            : <button type="button" className="reader-chapter-card" onClick={scrollToChapterStart}><ArrowRight size={20} aria-hidden="true" /><span><small>الفصل السابق</small><span>بداية الفصل</span></span></button>}
+          {next
+            ? <Link className="reader-chapter-card" rel="next" href={`/read/${bookSlug}/${next.slug}?start=1`} onClick={navigateChapter} scroll={false}><span><small>الفصل التالي</small><NavigationTitle title={next.title} /></span><ArrowLeft size={20} aria-hidden="true" /></Link>
+            : <span className="reader-chapter-card reader-chapter-card-unavailable" aria-disabled="true"><span><small>الفصل التالي</small><span>نهاية الكتاب</span></span><ArrowLeft size={20} aria-hidden="true" /></span>}
+        </nav>
+      </section>
     </div>
   </main>;
 }

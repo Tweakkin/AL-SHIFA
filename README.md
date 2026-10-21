@@ -1,62 +1,60 @@
 # Al-Shifa · الشفا
 
-Arabic-first digital library — Milestones 1 through 4.
+An Arabic RTL digital library built with Next.js, TypeScript and locally hosted fonts.
 
-## Preview
+## Run and check
 
-Requires Node.js 20.9 or newer and npm.
+Use Node.js 22.18+ or 24+ so the existing tests can import TypeScript directly.
 
 ```sh
-npm install
+npm ci
 npm run dev
-```
-
-Open http://127.0.0.1:3000. Stop the server with Ctrl+C.
-
-Reader preview: http://127.0.0.1:3000/read/al-shifa/demo-01. If a preview is already running, restart it after building to load the current version. You can use another port with `npm run dev -- --port 3002`.
-
-```sh
 npm run typecheck
 npm test
 npm run build
 npm start
 ```
 
-The first installation and production build need internet access to download packages and the Google fonts. Next.js serves the downloaded fonts locally in production.
+The default preview is http://127.0.0.1:3000. Use `npm run dev -- --port 3001` if another port is required; reuse an existing preview when one is already running.
 
-## Scope
+Current reader example: `/read/al-shifa/qism-1-bab-2`.
 
-- Next.js App Router, strict TypeScript, Tailwind CSS 4, Lucide icons.
-- Arabic language and RTL layout; IBM Plex Sans Arabic interface and Amiri display/reading font.
-- Responsive homepage, mobile navigation, featured volume, four CSS book covers, footer.
-- `/library` is a working local-data catalog. A GET form combines title/author search (`q`), subject (`category`), and author (`author`); submit with «بحث وتصفية». URLs preserve the selected controls, and the reset link clears all three. Search ignores Arabic marks, Alef variants, tatweel and extra whitespace. Search terms can match across the title and author.
-- Subject labels are broad editorial groupings based on the supplied proposal, not additional edition or publication metadata.
-- `/books/[slug]` contains four book detail pages, using the existing records, covers and editorial categories. Edition and original-text source information are explicitly marked as not supplied. Definitions are editorial descriptions, not excerpts from the books.
-- `/library/[slug]` permanently redirects to the corresponding book detail page, preserving older links.
-- Each book has two explicitly labeled demonstration chapter links. No authentic table of contents was supplied; these chapter names and ordering are navigation fixtures only.
-- `/read/[slug]/[chapter]` is a complete reading interface with Amiri text, a compact toolbar, desktop contents sidebar, native modal contents drawer on mobile, current-chapter highlighting and previous/next links. The page itself contains no imported original book text.
-- Font size is 22px by default on desktop and 20px on mobile, adjustable from 18px to 34px. White, warm ivory and dark themes cover both text and controls. A root-level `next/script` with `beforeInteractive` applies saved preferences through a temporary CSSOM stylesheet on every initial page load, without changing React-owned HTML attributes before hydration. The shared theme provider applies validated preferences and removes that temporary sheet; it remains mounted through client navigation. No hydration-warning suppression is used.
-- Global light/dark appearance covers the homepage, header/footer, catalog, forms, cards and book details. The header moon/sun toggle has an Arabic accessible name and tooltip on desktop/mobile. One existing local preference record is shared with the reader: dark means global dark; white/ivory mean global light. Header toggles explicitly select dark or ivory; choosing white inside the reader persists white across navigation until another theme is chosen. Font size and progress are independent. Open tabs synchronize appearance through storage events.
-- RTL toolbar order is back/contents on the right, centered book/chapter titles, and settings/progress on the left. The contents pane opens from the right. At compact desktop widths it overlays the page rather than narrowing the text; wider screens reserve space while retaining the full 730px reading column.
-- Reader preferences and last chapter/scroll position are saved locally in the current browser. The book page includes a resume action, enabled after a reading position exists. Paragraph anchors improve restoration across font/viewport changes; a scroll ratio provides a fallback. Explicit chapter/start links begin at the top. The one-time start/resume URL flags are consumed so a subsequent reload resumes normally.
-- Unknown routes show an Arabic not-found page.
+Fonts are loaded from `src/app/fonts/` with `next/font/local`; builds do not download Google Fonts. The font source and license notices remain beside the files and under `public/licenses/`.
 
-The proposal is background context. Institutional relationships and official endorsements described there have not been represented as established facts. No religious quotations or book text have been generated.
+## Current application
 
-## Structure
+- Four catalog records, Arabic-aware title/author search, category/author filters and a conditional reset action. Query state is reflected in the library URL.
+- Book details, a structured table of contents and local resume links. Older `/library/[slug]` links redirect to `/books/[slug]`.
+- The retained Al-Shifa dataset has 14 chapters, 170 sections and 4,831 original passages. Other books use clearly labeled demonstration content.
+- Reader: IBM Plex Sans Arabic by default, optional Amiri, selective Bouazzi Maghribi headings, a 700px reading column, white/ivory/dark themes, font-size preferences and local reading progress.
+- A responsive right-side contents drawer groups divisions and chapter subjects. Previous/next navigation and the first chapter's scroll-to-start action retain established routes.
+- Paragraph focus opens on desktop clicks or keyboard activation; touch devices have a dedicated control. Drag-selection and copying remain available. Immediate click opening takes precedence over double-click selection in the main reader.
+- Reviewed quotation emphasis, enumeration presentation and guarded display corrections preserve the stored Arabic text and passage IDs.
+- Global light/dark appearance and reader themes share the existing preference record. Font size, font choice and reading progress persist locally; there is no database or account requirement.
 
-`src/app/` contains routes, metadata and global styles. `src/components/` contains the shared header, footer, ornament, book cover, book card and table of contents. The homepage and catalog reuse the same card and cover. `src/lib/books.ts` stores the four supplied books, editorial descriptions, categories and bibliographic source status; `src/lib/catalog.ts` handles Arabic matching and combined filters. Global appearance tokens and synchronization policy live in `src/lib/reader-state.ts`; `src/app/globals.css` supplies the light fallback and consumes those tokens. `src/components/theme-provider.tsx` is the single preference owner used by the header and reader.
+## Where things belong
 
-`src/lib/content-types.ts` models BookContent → Chapter → Section → Passage. Each chapter, section and passage has a permanent ID; chapter route slugs are independent of array position. `src/content/books.ts` holds the content documents separately from editorial metadata; chapter array order defines navigation order. Original-text records remain empty. Future original chapters and passages require source citations. `src/lib/book-documents.ts` joins records to content by book slug, without copying bibliographic records. Keep established IDs when inserting, reordering or revising content.
+| Location | Purpose |
+| --- | --- |
+| `src/app/` | Routes, global/reader styles and local fonts |
+| `src/components/` | Shared interface and reader components |
+| `src/content/al-shifa/` | Retained original Arabic dataset; preserve IDs and order |
+| `src/content/reader-demonstration.ts` | Separate, explicitly editorial test prose |
+| `src/lib/reader-display-text.ts` | Shared normal-reader/focus display correction path |
+| `src/lib/reader-punctuation-errata.ts` | Guarded transcription/display repairs |
+| `src/lib/reader-editorial-overrides.ts` | Explicit, separately documented editorial choices |
+| `scratch/` | Current edition's pinned source and essential import/verification tools; see its README |
+| `scripts/` and `tests/` | Active integrity checks and application regression tests |
+| `reports/al-shifa-integrity/` | Original snapshots, source evidence, active corrections and regression fixtures |
 
-`src/content/reader-demonstration.ts` stores neutral interface-testing prose separately from `Passage.originalText`. Its explicit section/paragraph keys remain stable when content is reordered. A rendering adapter also supports the existing original section/passage structure and preserves original IDs, text and source citations. No religious quotations or claims are used as sample reading content.
+Original passages and editorial presentation are separate. The retained edition has documented limitations; do not treat demonstration prose as original text or silently change source punctuation. Existing integrity reports explain the provenance and review decisions.
 
-`src/components/reader/book-reader.tsx` contains the reader controls, accessible contents navigation and lifecycle handling. `resume-reading.tsx` is the book-page entry point. `src/lib/reader-state.ts` validates stored data and owns the preference/progress policy; `reader-position.ts` captures/restores approximate positions. `src/app/reader.css` retains the three reader palettes independently of site surfaces. Global chrome is hidden only while a valid reader surface is present.
+## Maintenance
 
-`npm test` requires Node.js 22.18+ or 24+ for native TypeScript stripping. The 19 checks cover catalog matching/filters, content lookup and metadata reuse, missing slugs, preference validation and pre-paint application, progress parsing and chapter isolation, restoration policy, scroll bounds, stable demonstration IDs and original passage/source preservation, shared appearance mapping and contrast across both site palettes. No test dependencies are required.
+All application components and declared packages currently have active references. Keep dynamic book-cover colors, heading classes and font license copies even when a simple text search does not find their complete generated class names.
 
-Browser verification includes theme and font persistence after reload; 18/34px limits; leaving and resuming a mid-chapter position; reloading that position; deliberate chapter changes starting at the top; previous/next and contents links; mobile focus trapping/Escape/focus return; 320px mobile and desktop layouts; theme contrast; and browser errors/hydration warnings.
+Generated `.next/`, dependencies, local environment files, screenshot output, Python bytecode, logs and future local backups are ignored. Do not put recovery copies or abandoned scans inside the active source tree.
 
-The original proposal is retained in the project root. Milestone 5 is not started. To replace demonstration contents later, supply a verified edition, an authentic ordered chapter list and source-attributed original text; the current demonstration data must never be represented as an authentic chapter structure. There are no accounts, backend, in-book search, bookmark controls, footnote/citation tools, PDF/audio features or real content imports.
+The repository is self-contained for development, builds and tests. Historical research, recovery copies and development screenshots stay outside it. Generated audit inventories are ignored; `npm run audit:shifa` can regenerate source findings. Keep committed source snapshots, correction evidence and test fixtures. The punctuation audit also regenerates display rules and correction logs: run it only when deliberately reviewing those records.
 
-Progress and settings are per browser/device; appearance synchronizes between open tabs on the same origin, not across devices. Clearing browser data removes them; blocking local storage prevents persistence but leaves reader controls usable. Restored scroll positions are approximate, especially after viewport or font changes. Demo prose is only for testing the interface and is not a scholarly edition.
+Progress and preferences are local to a browser/device. Scroll restoration is approximate after font or viewport changes. No migration, OCR work or new feature is implied by maintenance tasks.

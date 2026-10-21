@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 function SourceLabel({ source }: { source: SourceCitation }) {
-  return <>{source.url ? <a className="source-link" href={source.url}>{source.label}</a> : source.label}{source.locator && <> — {source.locator}</>}</>;
+  return <>{source.url ? <a className="source-link" href={source.url}>{source.label}</a> : source.label}{source.locator && <> · {source.locator}</>}</>;
 }
 
 export default async function BookDetailsPage({ params }: PageProps) {
@@ -50,7 +50,7 @@ export default async function BookDetailsPage({ params }: PageProps) {
     <TableOfContents bookSlug={book.slug} chapters={content.chapters} />
     <div className="book-profile-body">
       <section className="book-detail-section book-about" aria-labelledby="about-heading">
-        <div className="detail-section-heading"><h2 id="about-heading">عن الكتاب</h2></div>
+        <div className="detail-section-heading detail-editorial-heading"><h2 id="about-heading">نبذة عن الكتاب</h2></div>
         <p className="book-about-description">{book.editorial.description}</p>
         <p className="detail-editorial-label">تعريف تحريري من المكتبة، وليس مقتطفًا من الكتاب.</p>
       </section>

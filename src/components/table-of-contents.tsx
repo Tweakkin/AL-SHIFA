@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Chapter } from "@/lib/content-types";
 import { formatNumber } from "@/lib/reader-state";
+import { editorialChapterTitle } from "@/lib/editorial-text";
 
 function formatSectionCount(count: number): string {
   if (count <= 0) return "";
@@ -86,18 +87,23 @@ export function TableOfContents({ bookSlug, chapters }: { bookSlug: string; chap
 
   return (
     <section className="book-detail-section table-of-contents-section" aria-labelledby="contents-heading">
-      <div className="detail-section-heading">
+      <div className="detail-section-heading detail-editorial-heading">
         <h2 id="contents-heading">فهرس الكتاب</h2>
         <span className="contents-subtitle">{subtitle}</span>
       </div>
 
       {chapters.length ? (
         <nav className="chapter-selection-nav" aria-label="فهرس فصول الكتاب" aria-describedby={hasDemonstration ? "reading-availability" : undefined}>
-          {groups.map((group) => (
-            <div key={group.key} className={`chapter-group${group.key === "muqaddima" ? " chapter-group-introduction" : ""}`}>
+          {groups.map((group) => {
+            const division = group.key.startsWith("qism-") ? group.divisionTitle?.match(/^([^:]+):\s*(.+)$/u) : null;
+            return (
+            <div key={group.key} className={`chapter-group${group.key === "muqaddima" ? " chapter-group-introduction" : ""}${division ? " chapter-group-division" : ""}`}>
               {hasDivisions && group.divisionTitle && (
                 <div className="chapter-group-header">
-                  <h3 className="chapter-group-title">{group.divisionTitle}</h3>
+                  <div className="chapter-group-copy">
+                    <h3 className="chapter-group-title">{division ? division[1] : group.divisionTitle}</h3>
+                    {division && <p className="chapter-group-description">{division[2]}</p>}
+                  </div>
                   {group.key.startsWith("qism-") && <span className="chapter-group-count">
                     {formatNumber(group.chapters.length)} {group.chapters.length === 1 ? "باب" : "أبواب"}
                   </span>}
@@ -111,14 +117,14 @@ export function TableOfContents({ bookSlug, chapters }: { bookSlug: string; chap
                     key={chapter.id}
                     className="chapter-card"
                     href={`/read/${bookSlug}/${chapter.slug}`}
-                    aria-label={`${formatNumber(number)}: ${chapter.title}`}
-                    title={chapter.title}
+                    aria-label={`${formatNumber(number)}: ${editorialChapterTitle(chapter.title)}`}
+                    title={editorialChapterTitle(chapter.title)}
                   >
                     <div className="chapter-card-top">
                       {!hasTitleNumber && <span className="chapter-card-number" aria-hidden="true">
                         {formatNumber(number)}
                       </span>}
-                      <h4 className="chapter-card-title">{displayTitle.replace(/^((?:الباب|الفصل)\s+[^:—–]+?)\s+[—–]\s+/u, "$1: ")}</h4>
+                      <h4 className="chapter-card-title">{editorialChapterTitle(displayTitle)}</h4>
                       <ArrowLeft className="chapter-card-arrow" size={17} aria-hidden="true" />
                     </div>
                     <div className="chapter-card-footer">
@@ -132,7 +138,7 @@ export function TableOfContents({ bookSlug, chapters }: { bookSlug: string; chap
                 );})}
               </div>
             </div>
-          ))}
+          );})}
         </nav>
       ) : (
         <p className="contents-notice">لم يتوفر فهرس لهذا الكتاب بعد.</p>

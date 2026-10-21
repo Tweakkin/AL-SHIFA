@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/catalog.test.mjs tests/content.test.mjs tests/reader.test.mjs tests/text-integrity.test.mjs",
+    "test": "node --test tests/catalog.test.mjs tests/content.test.mjs tests/reader.test.mjs tests/reader-presentation.test.mjs tests/text-integrity.test.mjs tests/reader-quotes.test.mjs tests/punctuation.test.mjs",
     "audit:shifa": "node scripts/audit-al-shifa.mjs"
   },
   "dependencies": {

@@ -1,5 +1,8 @@
 import { createElement } from "react";
+import { ZoomIn } from "lucide-react";
 import { readerDisplayText } from "../../lib/reader-display-text.ts";
+import { QuotationText } from "./quotation-text.ts";
+import { ClassificationText, EnumerationItemText } from "./enumerations.ts";
 
 type OutlineMarker = { sourceLabel: string; label: string; level: "division" | "bab" };
 type OutlineEntry = OutlineMarker & { description: string };
@@ -44,11 +47,21 @@ export function introOutlineEntries(chapterId: string, passage: Passage): Outlin
   return entries;
 }
 
-export function IntroOutlinePassage({ chapterId, passage }: { chapterId: string; passage: Passage }) {
-  const entries = introOutlineEntries(chapterId, passage);
-  if (!entries) return createElement("p", {
-    id: passage.id, "data-reader-passage": true, "data-content-kind": passage.kind, dir: "auto",
-  }, readerDisplayText(passage));
+export function IntroOutlinePassage({ chapterId, passage, focusable = false, emphasizeQuotes = false, enumerationMarker }: { chapterId: string; passage: Passage; focusable?: boolean; emphasizeQuotes?: boolean; enumerationMarker?: string }) {
+  const text = readerDisplayText(passage);
+  const entries = introOutlineEntries(chapterId, { ...passage, text });
+  if (!entries) {
+    const eligible = focusable && /[\p{L}\p{N}]/u.test(text);
+    const paragraph = createElement("p", {
+      id: passage.id, "data-reader-passage": true, "data-content-kind": passage.kind, dir: "auto", tabIndex: eligible ? 0 : undefined,
+      "data-focus-eligible": eligible || undefined, "aria-keyshortcuts": eligible ? "Enter Space" : undefined,
+      "aria-haspopup": eligible ? "dialog" : undefined, "aria-controls": eligible ? "reader-paragraph-focus" : undefined,
+      className: enumerationMarker ? "reader-enumeration-text" : undefined,
+    }, enumerationMarker ? createElement(EnumerationItemText, { text, marker: enumerationMarker, enabled: emphasizeQuotes })
+      : createElement(ClassificationText, { passage, enabled: emphasizeQuotes }));
+    return focusable ? createElement("div", { className: "reader-passage", "data-short": text.length < 100 || undefined }, paragraph,
+      eligible && createElement("button", { type: "button", className: "reader-paragraph-focus-control", "data-focus-passage": passage.id, "aria-label": "تكبير الفقرة", title: "تكبير الفقرة", "aria-haspopup": "dialog", "aria-controls": "reader-paragraph-focus" }, createElement(ZoomIn, { size: 17, strokeWidth: 1.5, "aria-hidden": true, focusable: false }))) : paragraph;
+  }
   return createElement("div", {
     id: passage.id, className: "reader-intro-outline", "data-reader-passage": true,
     "data-content-kind": passage.kind, role: "group", "aria-label": "من خطة المؤلف للكتاب في المقدمة", dir: "rtl",
@@ -58,5 +71,5 @@ export function IntroOutlinePassage({ chapterId, passage }: { chapterId: string;
   passage.id.endsWith("-012") && index === 0
     ? createElement("p", { className: "reader-outline-note" }, "خطة الكتاب في مقدمة المؤلف") : null,
   createElement("h3", { className: "reader-outline-label" }, entry.label),
-  createElement("p", { className: "reader-outline-description", dir: "auto" }, entry.description))));
+  createElement("p", { className: "reader-outline-description", dir: "auto" }, createElement(QuotationText, { text: entry.description, enabled: emphasizeQuotes })))));
 }

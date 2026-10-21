@@ -17,7 +17,7 @@ const pendingBibliography: Bibliography = { metadataSource: "العنوان وا
 
 const shifaBibliography: Bibliography = {
   edition: {
-    label: "طبعة دار الفيحاء (عمان) — الطبعة الثانية، 1407 هـ / 1986 م (جزءان)",
+    label: "طبعة دار الفيحاء (عمان)، الطبعة الثانية، 1407 هـ / 1986 م (جزءان)",
     source: {
       label: "المكتبة الشاملة (رقم 23645) وOpenITI",
       url: "https://shamela.ws/book/23645",

@@ -4,27 +4,38 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { shifaContent } from '../src/content/al-shifa/index.ts';
 import { readerDisplayText } from '../src/lib/reader-display-text.ts';
+import { readerEditorialOverrides } from '../src/lib/reader-editorial-overrides.ts';
 import { IntroOutlinePassage } from '../src/components/reader/intro-outline.ts';
 import { inspectQuotes } from '../scripts/inspect-reader-quotes.mjs';
+import { readFileSync } from 'node:fs';
 
-test('only the reviewed initial stray mark changes; source words, IDs and all other marks survive', () => {
+test('only logged display repairs change; source words, IDs and original dataset survive', () => {
   const snapshot = JSON.stringify(shifaContent);
+  const corrections = JSON.parse(readFileSync(new URL('../reports/al-shifa-integrity/punctuation-corrections.json', import.meta.url), 'utf8'));
+  const byId = new Map(corrections.map(c => [c.passageId, c]));
+  for (const [id, override] of Object.entries(readerEditorialOverrides)) byId.set(id, {correctedText:override.displayText});
+  assert.deepEqual(corrections.filter(c => c.changes.some(edit => edit.from === '»')).map(c => c.passageId), [
+    'al-shifa:chapter:muqaddima:passage:sec-01-001',
+    'al-shifa:chapter:muqaddima:passage:sec-01-009',
+    'al-shifa:chapter:muqaddima:passage:sec-01-020',
+    'al-shifa:chapter:qism-1-bab-2:passage:sec-03-013',
+  ]);
   let changes = 0;
   for (const c of shifaContent.chapters) for (const s of c.sections) for (const p of s.passages) {
     const input = { id: p.id, text: p.originalText, kind: 'original' };
     const shown = readerDisplayText(input);
     if (shown !== p.originalText) {
       changes++;
-      assert.equal(p.id, 'al-shifa:chapter:muqaddima:passage:sec-01-001');
-      assert.equal(shown, p.originalText.slice(0, 94) + p.originalText.slice(95));
-      assert.equal(shown.replace(/[«»]/gu, ''), p.originalText.replace(/[«»]/gu, ''));
+      assert.equal(shown, byId.get(p.id)?.correctedText, p.id);
+      if (readerEditorialOverrides[p.id]) assert.equal(shown.slice(0,-1), p.originalText.slice(0,-1));
+      else assert.equal(shown.replace(/[\s»]/gu, ''), p.originalText.replace(/[\s»]/gu, ''));
       const html = renderToStaticMarkup(createElement(IntroOutlinePassage, { chapterId: c.id, passage: input }));
-      assert(html.includes('الظاهر لا تخيلا'));
+      if (p.id === 'al-shifa:chapter:muqaddima:passage:sec-01-001') assert(html.includes('الظاهر لا تخيلا'));
       assert(html.includes(`id="${p.id}"`));
       assert(html.includes('data-reader-passage="true"'));
     }
   }
-  assert.equal(changes, 1);
+  assert.equal(changes, byId.size);
   assert.equal(JSON.stringify(shifaContent), snapshot);
 });
 

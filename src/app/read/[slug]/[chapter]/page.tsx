@@ -4,6 +4,7 @@ import { bookContents } from "@/content/books";
 import { getChapterDocument } from "@/lib/book-documents";
 import { getReadingSections } from "@/content/reader-demonstration";
 import { BookReader } from "@/components/reader/book-reader";
+import { editorialChapterTitle } from "@/lib/editorial-text";
 
 type PageProps = { params: Promise<{ slug: string; chapter: string }> };
 export const dynamicParams = false;
@@ -13,7 +14,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, chapter } = await params;
   const document = getChapterDocument(slug, chapter);
-  return { title: document ? `${document.chapter.title} — ${document.book.title}` : "الفصل غير موجود", robots: { index: false } };
+  return { title: document ? `${editorialChapterTitle(document.chapter.title)} | ${document.book.title}` : "الفصل غير موجود", robots: { index: false } };
 }
 
 export default async function ReadingPage({ params }: PageProps) {
